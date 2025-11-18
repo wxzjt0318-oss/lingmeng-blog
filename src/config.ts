@@ -250,24 +250,26 @@ export const navBarConfig: NavBarConfig = {
 				},
 			],
 		},
-{
-	name: "My",
-	url: "/content/",
-	icon: "material-symbols:person",
-	children: [
-		LinkPreset.Anime,
-		LinkPreset.Diary,
 		{
-			name: "Gallery",
-			url: "/albums/",
-			icon: "material-symbols:photo-library",
-		},
-		{
-			name: "网易云",
-			url: "https://music.163.com/#/user/home?id=118926845",
-			external: true,
-			icon: "fa6-brands:netease-cloud-music",
-		},
+			name: "My",
+			url: "/content/",
+			icon: "material-symbols:person",
+			children: [
+				LinkPreset.Anime,
+				LinkPreset.Diary,
+				{
+					name: "Gallery",
+					url: "/albums/",
+					icon: "material-symbols:photo-library",
+				},
+				{
+					name: "网易云",
+					url: "https://music.163.com/#/user/home?id=118926845",
+					external: true,
+					icon: "fa6-brands:netease-cloud-music",
+				},
+			],
+		}
 	],
 };
 export const profileConfig: ProfileConfig = {
