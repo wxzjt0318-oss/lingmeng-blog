@@ -1,0 +1,262 @@
+---
+import { siteConfig } from "../config";
+import Icon from "../components/misc/Icon.astro";
+import IconifyLoader from "../components/misc/IconifyLoader.astro";
+import SkillsChart from "../components/skills/SkillsChart.astro";
+import { UNCATEGORIZED } from "../constants/constants";
+import {
+	getAdvancedSkills,
+	getSkillStats,
+	getSkillsByCategory,
+	getTotalExperience,
+	skillsData,
+} from "../data/skills";
+
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+// 检查技能页面是否启用
+if (!siteConfig.featurePages.skills) {
+	return Astro.redirect("/404/");
+}
+
+const { lang } = Astro.props;
+
+// 获取技能统计信息
+const stats = getSkillStats();
+const advancedSkills = getAdvancedSkills();
+const totalExperience = getTotalExperience();
+
+// 获取所有分类
+const categories = [...new Set(skillsData.map((skill) => skill.category))];
+
+// 按分类获取技能
+const skillsByCategory = categories.reduce(
+	(acc, category) => {
+		acc[category] = getSkillsByCategory(category);
+		return acc;
+	},
+	{} as Record<string, typeof skillsData>,
+);
+
+// 技能等级颜色映射
+const getLevelColor = (level: string) => {
+	switch (level) {
+		case "expert":
+			return "bg-red-600/20 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+		case "advanced":
+			return "bg-orange-600/20 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400";
+		case "intermediate":
+			return "bg-yellow-600/20 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
+		case "beginner":
+			return "bg-green-600/20 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+		default:
+			return "bg-gray-600/20 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400";
+	}
+};
+
+// 技能等级进度条宽度
+const getLevelWidth = (level: string) => {
+	switch (level) {
+		case "expert":
+			return "100%";
+		case "advanced":
+			return "80%";
+		case "intermediate":
+			return "60%";
+		case "beginner":
+			return "40%";
+		default:
+			return "20%";
+	}
+};
+
+// 获取分类的显示文本
+const getCategoryText = (category: string) => {
+	switch (category) {
+		case "frontend":
+			return "前端开发";
+		case "backend":
+			return "后端开发";
+		case "database":
+			return "数据库";
+		case "tools":
+			return "开发工具";
+		case "other":
+			return "其他技能";
+		case UNCATEGORIZED:
+			return "未分类";
+		default:
+			return category;
+	}
+};
+
+const title = "技能"; 
+const subtitle = "我的专业技能展示"; 
+
+// 收集所有技能图标用于预加载
+const allIcons = skillsData.map((skill) => skill.icon).filter(Boolean);
+
+// 进度条动画状态
+let animated = false;
+---
+
+<MainGridLayout title={title} description={subtitle}>
+  <!-- 图标加载器，预加载所有技能图标 -->
+  <IconifyLoader preloadIcons={allIcons} />
+  <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+    <div class="card-base z-10 px-9 py-6 relative w-full">
+      <!-- 页面标题 -->
+      <div class="flex flex-col items-start justify-center mb-8">
+        <h1 class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative
+                  before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)]
+                  before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4">
+          技能
+        </h1>
+        <p class="text-lg text-black/60 dark:text-white/60">
+          我的专业技能展示
+        </p>
+      </div>
+
+      <!-- 技能图表 -->
+      <SkillsChart stats={stats} totalExperience={totalExperience} />
+
+      <!-- 专业技能 -->
+      {advancedSkills.length > 0 && (
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-black/90 dark:text-white/90 mb-4 relative
+                    before:w-1 before:h-6 before:rounded-md before:bg-[var(--primary)]
+                    before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4">
+            专业技能
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {advancedSkills.map((skill) => (
+              <div class="bg-transparent rounded-lg border border-black/10 dark:border-white/10 p-6 hover:shadow-lg transition-shadow duration-300">
+                <div class="flex items-start gap-4">
+                  {skill.icon && (
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center" style={`background-color: ${skill.color || 'rgb(99 102 241)'}20`}>
+                      <Icon 
+                        icon={skill.icon} 
+                        class="text-2xl" 
+                        color={skill.color && skill.color !== '#000000' ? skill.color : 'rgb(99 102 241)'}
+                        fallback={skill.name.charAt(0)}
+                        loading="eager"
+                      />
+                    </div>
+                  )}
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between mb-2">
+                      <h3 class="text-xl font-semibold text-black/90 dark:text-white/90">
+                        {skill.name}
+                      </h3>
+                      <span class={`px-2 py-1 text-xs rounded-full ${getLevelColor(skill.level)}`}>
+                        {skill.level === 'expert' ? '专家' :
+                         skill.level === 'advanced' ? '高级' :
+                         skill.level === 'intermediate' ? '中级' :
+                         '初级'}
+                      </span>
+                    </div>
+                    <p class="text-black/60 dark:text-white/60 mb-3 text-sm">
+                      {skill.description}
+                    </p>
+                    <div class="mb-3">
+                      <div class="flex justify-between text-sm mb-1">
+                        <span class="text-black/60 dark:text-white/60">经验</span>
+                        <span class="text-black/80 dark:text-white/80">
+                          {skill.experience.years} 年{skill.experience.months > 0 ? ` ${skill.experience.months} 个月` : ''}
+                        </span>
+                      </div>
+                      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div 
+                            class="h-2 rounded-full transition-all duration-300"
+                            style={`width: ${getLevelWidth(skill.level)}; background-color: ${skill.color || 'rgb(99 102 241)'};`}
+                          ></div>
+                      </div>
+                    </div>
+                    {skill.certifications && skill.certifications.length > 0 && (
+                      <div class="flex flex-wrap gap-1">
+                        {skill.certifications.map((cert) => (
+                          <span class="px-2 py-1 text-xs bg-green-600/20 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded">
+                            {cert}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- 按分类展示技能 -->
+      <div class="space-y-8">
+        {categories.map((category) => {
+          const categorySkills = skillsByCategory[category];
+          if (categorySkills.length === 0) return null;
+          
+          return (
+            <div>
+              <h2 class="text-2xl font-bold text-black/90 dark:text-white/90 mb-4 relative
+                        before:w-1 before:h-6 before:rounded-md before:bg-[var(--primary)]
+                        before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4">
+                {getCategoryText(category)}
+                <span class="text-lg font-normal text-black/60 dark:text-white/60 ml-2">
+                  ({categorySkills.length})
+                </span>
+              </h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categorySkills.map((skill) => (
+                  <div class="bg-transparent rounded-lg border border-black/10 dark:border-white/10 p-4 hover:shadow-lg transition-shadow duration-300">
+                    <div class="flex items-start gap-3">
+                      {skill.icon && (
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={`background-color: ${skill.color || 'rgb(99 102 241)'}20`}>
+                          <Icon 
+                            icon={skill.icon} 
+                            class="text-lg" 
+                            color={skill.color && skill.color !== '#000000' ? skill.color : 'rgb(99 102 241)'}
+                            fallback={skill.name.charAt(0)}
+                            loading="eager"
+                          />
+                        </div>
+                      )}
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                          <h3 class="text-lg font-semibold text-black/90 dark:text-white/90 truncate">
+                            {skill.name}
+                          </h3>
+                          <span class={`px-2 py-1 text-xs rounded-full shrink-0 ml-2 ${getLevelColor(skill.level)}`}>
+                            {skill.level === 'expert' ? '专家' :
+                             skill.level === 'advanced' ? '高级' :
+                             skill.level === 'intermediate' ? '中级' :
+                             '初级'}
+                          </span>
+                        </div>
+                        <p class="text-black/60 dark:text-white/60 mb-2 text-sm line-clamp-2">
+                          {skill.description}
+                        </p>
+                        <div class="text-xs text-black/60 dark:text-white/60">
+                          <span>
+                            {skill.experience.years} 年{skill.experience.months > 0 ? ` ${skill.experience.months} 个月` : ''}
+                          </span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-2">
+                          <div 
+                              class="h-2 rounded-full transition-all duration-300"
+                              style={`width: ${getLevelWidth(skill.level)}; background-color: ${skill.color || 'rgb(99 102 241)'};`}
+                            ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+  
+
+</MainGridLayout>
