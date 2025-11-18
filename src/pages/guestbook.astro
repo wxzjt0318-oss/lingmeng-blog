@@ -1,0 +1,20 @@
+---
+import { twikooConfig } from '../config.ts';
+const commentConfig = twikooConfig;
+---
+
+<div class="container">
+  <h1>留言板</h1>
+  <p>欢迎留言！</p>
+
+  <!-- Twikoo 评论框 -->
+  <div id="twikoo"></div>
+  <script src="https://cdn.jsdelivr.net/npm/twikoo@1.6.18/dist/twikoo.min.js"></script>
+  <script>
+    twikoo.init({
+      envId: '${commentConfig.twikoo.envId}',
+      lang: '${commentConfig.twikoo.lang}',
+      el: '#twikoo',
+    });
+  </script>
+</div>
