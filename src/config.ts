@@ -266,7 +266,7 @@ export const navBarConfig: NavBarConfig = {
 					name: "网易云",
 					url: "https://music.163.com/#/user/home?id=118926845",
 					external: true,
-					icon: "simple-icons:github",
+					icon: "simple-icons:spotify",
 				},
 			],
 		}
