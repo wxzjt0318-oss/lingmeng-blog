@@ -266,8 +266,6 @@ export const navBarConfig: NavBarConfig = {
 					url: "https://music.163.com/#/user/home?id=你的网易云ID", // <--- 把这里的 "你的网易云ID" 替换成你自己的
 					external: true,
 					icon: "fa6-brands:netease-cloud-music",
-				},
-			],
 		}, // ← 注意：这里必须有 }, 并且因为后面还有 LinkPreset 或其他项，通常要加逗号
 	], // ← links 数组闭合
 }; // ← navBarConfig 对象闭合
