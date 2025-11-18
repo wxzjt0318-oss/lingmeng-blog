@@ -269,7 +269,7 @@ export const navBarConfig: NavBarConfig = {
 			icon: "fa6-brands:netease-cloud-music",
 		},
 	],
-},
+};
 export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/avatar.webp", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
 	name: "Matsuzaka Yuki",
