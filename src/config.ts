@@ -563,7 +563,7 @@ export const pioConfig: import("./types/config").PioConfig = {
 		home: "点击这里回到首页哟！", // 首页提示
 		skin: ["想看看我的新衣服吗？", "新衣服真漂亮~"], // 换装提示
 		close: "QWQ 下次再见吧~", // 关闭提示
-		link: "https://github.com/matsuzaka-yuki/Mizuki", // 关于链接
+		link: "https://github.com/wxzjt0318-oss/wxzjt0318-oss.github.io", // 关于链接
 	},
 };
 
