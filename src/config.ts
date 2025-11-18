@@ -242,7 +242,12 @@ export const navBarConfig: NavBarConfig = {
 					external: true,
 					icon: "fa6-brands:bilibili",
 				},
-
+{
+					name: "QQ",
+					url: "tencent://message/?uin=787294231", // <--- 把这里的 "你的QQ号码" 替换成你自己的
+					external: true,
+					icon: "fa6-brands:qq",
+				},
 			],
 		},
 		{
