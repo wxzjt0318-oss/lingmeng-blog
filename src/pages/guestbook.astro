@@ -1,20 +1,21 @@
 ---
-import { twikooConfig } from '../config.ts';
-const commentConfig = twikooConfig;
+// src/pages/guestbook.astro
+import Layout from '@mizuki/core/layouts/Layout.astro';
 ---
 
-<div class="container">
-  <h1>留言板</h1>
-  <p>欢迎留言！</p>
+<Layout title="留言板" description="欢迎留下你的足迹～">
+  <article class="prose prose-zinc mx-auto max-w-3xl dark:prose-invert">
+    <h1>留言板</h1>
+    <p>欢迎来到我的留言板！✨</p>
+    <p>在这里你可以：</p>
+    <ul>
+      <li>打个招呼 👋</li>
+      <li>提出建议 💡</li>
+      <li>分享心情 🌈</li>
+    </ul>
+    <p>我会认真阅读每一条留言！</p>
 
-  <!-- Twikoo 评论框 -->
-  <div id="twikoo"></div>
-  <script src="https://cdn.jsdelivr.net/npm/twikoo@1.6.18/dist/twikoo.min.js"></script>
-  <script>
-    twikoo.init({
-      envId: '${commentConfig.twikoo.envId}',
-      lang: '${commentConfig.twikoo.lang}',
-      el: '#twikoo',
-    });
-  </script>
-</div>
+    <!-- Twikoo 评论容器（关键！） -->
+    <div id="twikoo"></div>
+  </article>
+</Layout>
