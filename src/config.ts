@@ -248,6 +248,12 @@ export const navBarConfig: NavBarConfig = {
 					external: true,
 					icon: "fa6-brands:qq",
 				},
+						{
+					name: "网易云",
+					url: "https://music.163.com/#/user/home?id=118926845",
+					external: true,
+					icon: "simple-icons:spotify",
+				},
 			],
 		},
 		{
@@ -261,12 +267,6 @@ export const navBarConfig: NavBarConfig = {
 					name: "Gallery",
 					url: "/albums/",
 					icon: "material-symbols:photo-library",
-				},
-				{
-					name: "网易云",
-					url: "https://music.163.com/#/user/home?id=118926845",
-					external: true,
-					icon: "simple-icons:spotify",
 				},
 			],
 		}
