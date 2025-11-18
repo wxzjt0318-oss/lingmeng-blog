@@ -250,25 +250,26 @@ export const navBarConfig: NavBarConfig = {
 				},
 			],
 		},
+{
+	name: "My",
+	url: "/content/",
+	icon: "material-symbols:person",
+	children: [
+		LinkPreset.Anime,
+		LinkPreset.Diary,
 		{
-			name: "My",
-			url: "/content/",
-			icon: "material-symbols:person",
-			children: [
-				LinkPreset.Anime,
-				LinkPreset.Diary,
-				{
-					name: "Gallery",
-					url: "/albums/",
-					icon: "material-symbols:photo-library",
-				{
-					name: "网易云",
-					url: "https://music.163.com/#/user/home?id=118926845", // <--- 把这里的 "你的网易云ID" 替换成你自己的
-					external: true,
-					icon: "fa6-brands:netease-cloud-music",
-		}, // ← 注意：这里必须有 }, 并且因为后面还有 LinkPreset 或其他项，通常要加逗号
-	], // ← links 数组闭合
-}; // ← navBarConfig 对象闭合
+			name: "Gallery",
+			url: "/albums/",
+			icon: "material-symbols:photo-library",
+		},
+		{
+			name: "网易云",
+			url: "https://music.163.com/#/user/home?id=118926845",
+			external: true,
+			icon: "fa6-brands:netease-cloud-music",
+		},
+	],
+},
 export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/avatar.webp", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
 	name: "Matsuzaka Yuki",
