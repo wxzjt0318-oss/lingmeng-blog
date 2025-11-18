@@ -238,7 +238,7 @@ export const navBarConfig: NavBarConfig = {
 				},
 				{
 					name: "Bilibili",
-					url: " https://b23.tv/Ny6RChH",
+					url: "https://b23.tv/Ny6RChH",
 					external: true,
 					icon: "fa6-brands:bilibili",
 				},
