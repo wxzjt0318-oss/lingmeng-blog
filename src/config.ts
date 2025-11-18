@@ -232,13 +232,13 @@ export const navBarConfig: NavBarConfig = {
 			children: [
 				{
 					name: "GitHub",
-					url: "https://github.com/matsuzaka-yuki/Mizuki",
+					url: "https://github.com/wxzjt0318-oss/wxzjt0318-oss.github.io",
 					external: true,
 					icon: "fa6-brands:github",
 				},
 				{
 					name: "Bilibili",
-					url: "https://space.bilibili.com/701864046",
+					url: " https://b23.tv/Ny6RChH",
 					external: true,
 					icon: "fa6-brands:bilibili",
 				},
