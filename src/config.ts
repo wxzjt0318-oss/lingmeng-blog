@@ -244,7 +244,7 @@ export const navBarConfig: NavBarConfig = {
 				},
 {
 					name: "QQ",
-					url: "tencent://message/?uin=787294231", // <--- 把这里的 "你的QQ号码" 替换成你自己的
+					url: "https://qm.qq.com/q/toDlBSdPxu", // <--- 把这里的 "你的QQ号码" 替换成你自己的
 					external: true,
 					icon: "fa6-brands:qq",
 				},
