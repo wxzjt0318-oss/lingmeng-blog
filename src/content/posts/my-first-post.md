@@ -8,6 +8,7 @@ author: "灵梦"
 sourceLink: "https://github.com/wxzjt0318-oss/wxzjt0318-oss.github.io/blob/main/src/content/posts/my-first-post.md"
 draft: false
 pubDate: 2025-11-18
+published: true
 pinned: true
 image: https://s3.bmp.ovh/imgs/2025/11/18/91110dca0e3df440.jpg
 ---
