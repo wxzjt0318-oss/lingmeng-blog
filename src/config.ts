@@ -261,6 +261,11 @@ export const navBarConfig: NavBarConfig = {
 					name: "Gallery",
 					url: "/albums/",
 					icon: "material-symbols:photo-library",
+				{
+					name: "网易云",
+					url: "https://music.163.com/#/user/home?id=你的网易云ID", // <--- 把这里的 "你的网易云ID" 替换成你自己的
+					external: true,
+					icon: "fa6-brands:netease-cloud-music",
 				},
 			],
 		}, // ← 注意：这里必须有 }, 并且因为后面还有 LinkPreset 或其他项，通常要加逗号
