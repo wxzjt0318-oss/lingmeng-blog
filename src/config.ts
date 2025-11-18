@@ -272,11 +272,6 @@ export const navBarConfig: NavBarConfig = {
 				},
 			],
 		},
-		{
-		    name: "留言",        // ← 新增项
-			url: "/guestbook/", // 跳转地址
-			icon: "material-symbols:forum", // 图标（可选）
-	   },
 	],
 };
 export const profileConfig: ProfileConfig = {
