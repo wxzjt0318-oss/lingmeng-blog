@@ -8,11 +8,7 @@ author: "灵梦"
 sourceLink: "https://github.com/wxzjt0318-oss/wxzjt0318-oss.github.io/blob/main/src/content/posts/my-first-post.md"
 draft: false
 pubDate: 2025-11-18
-published: true
+published: 2025-11-18
 pinned: true
 image: https://s3.bmp.ovh/imgs/2025/11/18/91110dca0e3df440.jpg
 ---
-
-# 这只是一个测试
-
-在这里你将看到我的第一篇文章，它将展示这个文章如何发布并构成。
