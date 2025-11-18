@@ -1,7 +1,6 @@
 ---
 title: "留言板"
 description: "欢迎留下你的足迹～"
-layout: "page"
 permalink: "/guestbook/"
 comment: true
 ---
