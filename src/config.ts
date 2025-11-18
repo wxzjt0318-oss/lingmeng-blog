@@ -293,6 +293,16 @@ export const profileConfig: ProfileConfig = {
 			icon: "fa6-brands:github",
 			url: "https://github.com/wxzjt0318-oss/wxzjt0318-oss.github.io",
 		},
+	    {
+		name: "Steam",
+		icon: "fa6-brands:steam",
+		url: "https://steamcommunity.com/profiles/76561198428249076/",
+	    },
+	    {
+		name: "Discord",
+		icon: "fa6-brands:discord",
+		url: "https://discord.gg/uK6y7yBC",
+	    },
 	],
 };
 
