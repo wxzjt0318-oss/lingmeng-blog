@@ -1,77 +1,15 @@
----
-import Layout from '@layouts/Layout.astro';
+<div id="twikoo-test"></div>
 
-export const frontmatter = {
-	title: '留言版',
-	description: '欢迎在这里留下你的足迹和想法。',
-	permalink: '/visitorbook',
-	layout: 'page',
-};
----
-
-<Layout title="留言版" description="欢迎在这里留下你的足迹和想法。">
-  <article class="prose max-w-none dark:prose-invert">
-    <h1>💬 留言板</h1>
-    <p>欢迎在这里分享你的心情、想法或建议。</p>
-  </article>
-
-  <!-- Twikoo 留言框容器 -->
-  <div id="twikoo-visitorbook" class="mt-8"></div>
-
-  <style>
-    #twikoo-visitorbook {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 1rem;
-      background-color: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: var(--card-shadow);
-    }
-  </style>
-
-  <script is:inline>
-    (function() {
-      if (typeof window === 'undefined') return;
-
-      function initTwikoo() {
-        const container = document.getElementById('twikoo-visitorbook');
-        if (!container) {
-          setTimeout(initTwikoo, 300);
-          return;
-        }
-
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js';
-        script.onload = () => {
-          if (typeof twikoo !== 'undefined') {
-            twikoo.init({
-              url: 'https://twikoo-api-gmgc.vercel.app',
-              el: '#twikoo-visitorbook',
-              path: location.pathname, // ✅ 动态匹配当前路径
-              lang: 'zh-CN',
-              commentCount: true,
-              inputPlaceholder: '说点什么吧～',
-              emoji: [
-                'https://cdn.jsdelivr.net/gh/IKnowYou233/twikoo-emoji@main/emoji.json',
-                'https://cdn.jsdelivr.net/gh/IKnowYou233/twikoo-emoji@main/emoji-akashi.json'
-              ],
-              dark: document.documentElement.classList.contains('dark')
-            }).catch(err => {
-              console.error('[Twikoo] 初始化失败:', err);
-            });
-          }
-        };
-        script.onerror = () => {
-          console.error('[Twikoo] 脚本加载失败');
-        };
-        document.head.appendChild(script);
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initTwikoo);
-      } else {
-        initTwikoo();
-      }
-    })();
-  </script>
-</Layout>
+<script is:inline>
+  // 最简测试
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/twikoo@1.6.22/dist/twikoo.all.min.js';
+  s.onload = () => {
+    twikoo.init({
+      url: 'https://twikoo-api-gmgc.vercel.app',
+      el: '#twikoo-test',
+      path: '/test'
+    }).catch(console.error);
+  };
+  document.head.appendChild(s);
+</script>
