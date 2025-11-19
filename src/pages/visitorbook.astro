@@ -18,7 +18,6 @@ export const frontmatter = {
   <!-- Twikoo 留言框容器 -->
   <div id="twikoo-visitorbook" class="mt-8"></div>
 
-  <!-- 样式调整（可选） -->
   <style>
     #twikoo-visitorbook {
       max-width: 800px;
@@ -30,38 +29,49 @@ export const frontmatter = {
     }
   </style>
 
-  <!-- 引入并初始化 Twikoo -->
   <script is:inline>
     (function() {
       if (typeof window === 'undefined') return;
 
-      // 动态加载 Twikoo 脚本
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js'; // 使用标准版脚本
-      script.onload = function() {
-        if (typeof twikoo !== 'undefined') {
-          // 初始化 Twikoo
-          twikoo.init({
-            url: 'https://twikoo-api-gmgc.vercel.app', // 自建 API 地址，无结尾斜杠
-            el: '#twikoo-visitorbook',
-            path: '/visitorbook', // 页面路径，用于区分不同页面的评论
-            lang: 'zh-CN', // 语言设置
-            commentCount: true, // 是否显示评论数量
-            inputPlaceholder: '说点什么吧～', // 输入框提示文字
-            emoji: [
-              'https://cdn.jsdelivr.net/gh/IKnowYou233/twikoo-emoji@main/emoji.json',
-              'https://cdn.jsdelivr.net/gh/IKnowYou233/twikoo-emoji@main/emoji-akashi.json'
-            ], // 表情包配置
-            dark: document.documentElement.classList.contains('dark') // 暗黑模式支持
-          }).catch(function(err) {
-            console.error('[Twikoo] 初始化失败:', err);
-          });
+      function initTwikoo() {
+        const container = document.getElementById('twikoo-visitorbook');
+        if (!container) {
+          setTimeout(initTwikoo, 300);
+          return;
         }
-      };
-      script.onerror = function() {
-        console.error('[Twikoo] 加载脚本失败');
-      };
-      document.head.appendChild(script);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js';
+        script.onload = () => {
+          if (typeof twikoo !== 'undefined') {
+            twikoo.init({
+              url: 'https://twikoo-api-gmgc.vercel.app',
+              el: '#twikoo-visitorbook',
+              path: location.pathname, // ✅ 动态匹配当前路径
+              lang: 'zh-CN',
+              commentCount: true,
+              inputPlaceholder: '说点什么吧～',
+              emoji: [
+                'https://cdn.jsdelivr.net/gh/IKnowYou233/twikoo-emoji@main/emoji.json',
+                'https://cdn.jsdelivr.net/gh/IKnowYou233/twikoo-emoji@main/emoji-akashi.json'
+              ],
+              dark: document.documentElement.classList.contains('dark')
+            }).catch(err => {
+              console.error('[Twikoo] 初始化失败:', err);
+            });
+          }
+        };
+        script.onerror = () => {
+          console.error('[Twikoo] 脚本加载失败');
+        };
+        document.head.appendChild(script);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTwikoo);
+      } else {
+        initTwikoo();
+      }
     })();
   </script>
 </Layout>
