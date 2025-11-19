@@ -1,165 +1,116 @@
 ---
-import Layout from '@layouts/Layout.astro';
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { siteConfig } from "../config";
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
+
+// 可选：国际化标题（若未配置，使用默认中文）
+const pageTitle = i18n(I18nKey.guestbook) || "留言版";
+const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，分享你的想法";
 ---
 
-<Layout title="留言板">
-  <div class="visitorbook-container">
-    <div class="visitorbook-header">
-      <h1>💬 留言板</h1>
-      <p class="subtitle">欢迎来到留言板！这里是一个自由交流的空间，你可以：</p>
-
-      <ul class="features-list">
-        <li><span class="emoji">💭</span> 分享你的想法和观点</li>
-        <li><span class="emoji">📝</span> 留下你的建议和反馈</li>
-        <li><span class="emoji">🎨</span> 记录你的心情和故事</li>
-        <li><span class="emoji">🤝</span> 与其他访客互动交流</li>
-      </ul>
-
-      <p class="welcome-text">无论你想说什么，都欢迎在下方评论区留言！</p>
+<MainGridLayout title={pageTitle} description={pageSubtitle}>
+  <!-- Hero 标题区（与 diary 完全一致） -->
+  <div class="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white py-6 mb-6 rounded-t-[var(--radius-large)]">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h1 class="text-2xl md:text-3xl font-bold">{pageTitle}</h1>
+      <p class="mt-2 opacity-90">{pageSubtitle}</p>
     </div>
-
-    <!-- 温馨提示 -->
-    <div class="notice-section">
-      <h3 class="notice-title">温馨提示：</h3>
-      <ul class="notice-list">
-        <li>请保持友善和尊重，营造良好的交流氛围</li>
-        <li>欢迎分享你的想法，也可以提出对网站的建议</li>
-        <li>你的每一条留言都是对我最大的支持 ✨</li>
-      </ul>
-    </div>
-
-    <!-- 分隔线 -->
-    <div class="divider"></div>
-
-    <!-- 评论容器 -->
-    <div id="twikoo"></div>
   </div>
 
-  <!-- 引入 Twikoo SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
-  <script>
-    window.addEventListener('load', () => {
-      if (typeof window.twikoo === 'undefined') return;
+  <!-- 主内容区：复用 diary 的卡片容器结构 -->
+  <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+    <div class="card-base z-10 px-4 py-4 md:px-6 md:py-5 relative w-full">
+      <div class="relative max-w-4xl mx-auto">
+
+        <!-- 💬 你的原有留言板内容（稍作结构调整） -->
+        <div class="visitorbook-header mb-6">
+          <h2 class="text-xl md:text-2xl font-bold text-90 mb-2">💬 留言板</h2>
+          <p class="subtitle text-sm md:text-base text-75 mb-3">欢迎来到留言板！这里是一个自由交流的空间，你可以：</p>
+
+          <ul class="features-list space-y-2 mb-4">
+            <li class="flex items-center gap-2 text-75"><span class="emoji">💭</span> 分享你的想法和观点</li>
+            <li class="flex items-center gap-2 text-75"><span class="emoji">📝</span> 留下你的建议和反馈</li>
+            <li class="flex items-center gap-2 text-75"><span class="emoji">🎨</span> 记录你的心情和故事</li>
+            <li class="flex items-center gap-2 text-75"><span class="emoji">🤝</span> 与其他访客互动交流</li>
+          </ul>
+
+          <p class="welcome-text text-75">无论你想说什么，都欢迎在下方评论区留言！</p>
+        </div>
+
+        <!-- 温馨提示 -->
+        <div class="notice-section mb-6 p-4 rounded-lg bg-[var(--bg-secondary)] border border-[var(--line-divider)]">
+          <h3 class="notice-title text-base font-semibold text-90 mb-2">温馨提示：</h3>
+          <ul class="notice-list space-y-1 text-sm text-75">
+            <li>请保持友善和尊重，营造良好的交流氛围</li>
+            <li>欢迎分享你的想法，也可以提出对网站的建议</li>
+            <li>你的每一条留言都是对我最大的支持 ✨</li>
+          </ul>
+        </div>
+
+        <!-- 分隔线 -->
+        <div class="divider h-px bg-gradient-to-r from-transparent via-[var(--line-divider)] to-transparent my-6"></div>
+
+        <!-- Twikoo 评论区 -->
+        <div id="twikoo" class="w-full mt-4"></div>
+
+      </div>
+    </div>
+  </div>
+</MainGridLayout>
+
+<!-- Twikoo 初始化脚本 -->
+<script>
+  window.addEventListener('load', () => {
+    if (typeof window.twikoo === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js';
+      script.onload = () => initTwikoo();
+      document.head.appendChild(script);
+    } else {
+      initTwikoo();
+    }
+
+    function initTwikoo() {
       try {
         window.twikoo.init({
           envId: "https://twikoo-api-gmgc.vercel.app/",
           el: '#twikoo',
-          path: '/visitorbook',
+          path: '/guestbook', // 独立路径，避免与首页冲突
           lang: 'zh-CN'
         });
       } catch (err) {
         console.error('Twikoo init error:', err);
       }
-    });
-  </script>
-
-  <style>
-    .visitorbook-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 1.5rem;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      line-height: 1.6;
     }
+  });
+</script>
 
-    .visitorbook-header h1 {
-      font-size: 1.8rem;
-      color: #333;
-      margin-bottom: 0.8rem;
-      text-align: left;
+<style>
+  /* 继承主题变量，无需重复定义颜色 */
+  .visitorbook-header h2 {
+    text-align: left;
+  }
+
+  .features-list,
+  .notice-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .emoji {
+    font-size: 1rem;
+  }
+
+  #twikoo {
+    min-height: 300px;
+  }
+
+  /* 响应式：小屏优化 */
+  @media (max-width: 640px) {
+    .card-base {
+      margin: 0 -0.5rem;
+      border-radius: 0;
     }
-
-    .visitorbook-header .subtitle {
-      color: #666;
-      margin-bottom: 1rem;
-      font-size: 1rem;
-    }
-
-    .features-list {
-      list-style: none;
-      padding-left: 0;
-      margin: 1rem 0;
-    }
-
-    .features-list li {
-      margin: 0.6rem 0;
-      color: #555;
-      display: flex;
-      align-items: center;
-    }
-
-    .features-list .emoji {
-      margin-right: 0.6rem;
-      font-size: 1.1rem;
-    }
-
-    .welcome-text {
-      color: #666;
-      margin: 1.2rem 0;
-      font-size: 1rem;
-    }
-
-    /* 温馨提示 */
-    .notice-section {
-      margin: 2rem 0;
-      padding: 1.2rem;
-      background-color: #f9f9f9;
-      border-radius: 12px;
-      border: 1px solid #eaeaea;
-    }
-
-    .notice-title {
-      font-size: 1.1rem;
-      color: #333;
-      margin-bottom: 0.8rem;
-      font-weight: 500;
-    }
-
-    .notice-list {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-    }
-
-    .notice-list li {
-      margin: 0.6rem 0;
-      color: #555;
-      font-size: 0.95rem;
-    }
-
-    /* 分隔线 */
-    .divider {
-      height: 4px;
-      background: linear-gradient(90deg, #e0f7f1, #ffffff, #e0f7f1);
-      margin: 2rem 0;
-      border-radius: 2px;
-    }
-
-    /* Twikoo 容器样式（适配新布局） */
-    #twikoo {
-      margin-top: 2rem;
-      width: 100%;
-      min-height: 300px;
-    }
-
-    /* 移动端适配 */
-    @media (max-width: 768px) {
-      .visitorbook-container {
-        padding: 0 1rem;
-      }
-
-      .visitorbook-header h1 {
-        font-size: 1.6rem;
-      }
-
-      .features-list li,
-      .notice-list li {
-        font-size: 0.9rem;
-      }
-
-      .divider {
-        height: 3px;
-      }
-    }
-  </style>
-</Layout>
+  }
+</style>
