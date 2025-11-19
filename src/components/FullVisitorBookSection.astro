@@ -1,26 +1,35 @@
 ---
-// src/components/FullVisitorBookSection.astro
-// 完整留言板组件（不含 Layout）
+// src/components/SimpleVisitorBookSection.astro
+// 精简版留言板，风格匹配你提供的截图
 ---
 
-<div class="visitorbook-container">
-  <div class="visitorbook-header">
-    <h1>💬 留言板</h1>
-    <p class="subtitle">欢迎来到留言板！这里是一个自由交流的空间，你可以：</p>
-
-    <ul class="features-list">
-      <li><span class="emoji">💭</span> 分享你的想法和观点</li>
-      <li><span class="emoji">📝</span> 留下你的建议和反馈</li>
-      <li><span class="emoji">🎨</span> 记录你的心情和故事</li>
-      <li><span class="emoji">🤝</span> 与其他访客互动交流</li>
-    </ul>
-
-    <p class="welcome-text">无论你想说什么，都欢迎在下方评论区留言！</p>
+<div class="simple-visitorbook-container">
+  <div class="header">
+    <span class="icon">💬</span>
+    <h2>留言板</h2>
   </div>
+
+  <p class="intro">
+    欢迎来到留言板！这里是一个自由交流的空间，你可以：
+  </p>
+
+  <ul class="features-list">
+    <li><span class="emoji">💬</span> 分享你的想法和观点</li>
+    <li><span class="emoji">📝</span> 留下你的建议和反馈</li>
+    <li><span class="emoji">🎨</span> 记录你的心情和故事</li>
+    <li><span class="emoji">🤝</span> 与其他访客互动交流</li>
+  </ul>
+
+  <p class="welcome-text">
+    无论你想说什么，都欢迎在下方评论区留言！
+  </p>
+
+  <!-- 分隔线 -->
+  <div class="divider"></div>
 
   <!-- 温馨提示 -->
   <div class="notice-section">
-    <h3 class="notice-title">温馨提示：</h3>
+    <p class="notice-title">温馨提示：</p>
     <ul class="notice-list">
       <li>请保持友善和尊重，营造良好的交流氛围</li>
       <li>欢迎分享你的想法，也可以提出对网站的建议</li>
@@ -44,7 +53,7 @@
       window.twikoo.init({
         envId: "https://twikoo-api-gmgc.vercel.app/",
         el: '#twikoo',
-        path: '/', // ⭐ 所有页面共用首页评论
+        path: '/', // ⭐ 共用首页评论池
         lang: 'zh-CN'
       });
     } catch (err) {
@@ -54,25 +63,41 @@
 </script>
 
 <style>
-  .visitorbook-container {
+  .simple-visitorbook-container {
     max-width: 800px;
     margin: 2rem auto;
-    padding: 0 1.5rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 16px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    line-height: 1.6;
+    line-height: 1.7;
   }
 
-  .visitorbook-header h1 {
-    font-size: 1.8rem;
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .header h2 {
+    font-size: 1.3rem;
     color: #333;
-    margin-bottom: 0.8rem;
-    text-align: left;
+    margin: 0;
+    font-weight: 500;
   }
 
-  .visitorbook-header .subtitle {
+  .icon {
+    font-size: 1.2rem;
+    color: #6c757d;
+  }
+
+  .intro {
     color: #666;
     margin-bottom: 1rem;
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .features-list {
@@ -86,33 +111,37 @@
     color: #555;
     display: flex;
     align-items: center;
+    font-size: 0.95rem;
   }
 
   .features-list .emoji {
     margin-right: 0.6rem;
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .welcome-text {
     color: #666;
     margin: 1.2rem 0;
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+
+  /* 分隔线 */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+    margin: 1.5rem 0;
   }
 
   /* 温馨提示 */
   .notice-section {
-    margin: 2rem 0;
-    padding: 1.2rem;
-    background-color: #f9f9f9;
-    border-radius: 12px;
-    border: 1px solid #eaeaea;
+    margin: 1rem 0;
   }
 
   .notice-title {
-    font-size: 1.1rem;
-    color: #333;
-    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    color: #495057;
     font-weight: 500;
+    margin-bottom: 0.5rem;
   }
 
   .notice-list {
@@ -122,39 +151,29 @@
   }
 
   .notice-list li {
-    margin: 0.6rem 0;
+    margin: 0.5rem 0;
     color: #555;
-    font-size: 0.95rem;
-  }
-
-  /* 分隔线 */
-  .divider {
-    height: 4px;
-    background: linear-gradient(90deg, #e0f7f1, #ffffff, #e0f7f1);
-    margin: 2rem 0;
-    border-radius: 2px;
+    font-size: 0.9rem;
   }
 
   /* Twikoo 容器样式 */
   #twikoo {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     width: 100%;
-    min-height: 300px;
+    min-height: 250px;
   }
 
+  /* 移动端适配 */
   @media (max-width: 768px) {
-    .visitorbook-container {
-      padding: 0 1rem;
+    .simple-visitorbook-container {
+      padding: 1rem;
     }
-    .visitorbook-header h1 {
-      font-size: 1.6rem;
+    .header h2 {
+      font-size: 1.2rem;
     }
     .features-list li,
     .notice-list li {
       font-size: 0.9rem;
-    }
-    .divider {
-      height: 3px;
     }
   }
 </style>
