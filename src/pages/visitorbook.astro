@@ -58,7 +58,7 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
 <!-- ✅ 保留 defer 脚本：确保刷新时能加载 SDK -->
 <script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
 
-<!-- ✅ 初始化逻辑：兼容完整加载 + 客户端导航 -->
+<!-- ✅ 增强初始化逻辑：解决首次点击不显示问题 -->
 <script>
   function initTwikoo() {
     const container = document.getElementById('twikoo');
@@ -76,9 +76,8 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
       } catch (err) {
         console.error('Twikoo init error:', err);
       }
-    }
-    // 如果 twikoo 还没加载，等它加载完再 init（极端情况兜底）
-    else {
+    } else {
+      // 极端兜底：轮询直到 SDK 加载完成
       const checkInterval = setInterval(() => {
         if (typeof window.twikoo !== 'undefined') {
           clearInterval(checkInterval);
@@ -88,16 +87,20 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
     }
   }
 
-  // 场景1：完整页面加载（刷新）
+  // 场景1：完整页面加载（刷新或直接访问）
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTwikoo);
   } else {
     initTwikoo();
   }
 
-  // 场景2：Astro 客户端导航（点击跳转）
+  // 场景2：Astro 客户端导航（点击跳转）→ 延迟执行确保 DOM 已挂载
   if (typeof window !== 'undefined') {
-    window.addEventListener('astro:page-load', initTwikoo);
+    window.addEventListener('astro:page-load', () => {
+      requestAnimationFrame(() => {
+        setTimeout(initTwikoo, 0); // 推入下一个宏任务队列，确保 DOM 更新完成
+      });
+    });
   }
 </script>
 
