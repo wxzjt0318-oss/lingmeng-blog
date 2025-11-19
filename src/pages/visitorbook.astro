@@ -26,6 +26,7 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
           <h2 class="text-xl md:text-2xl font-bold text-90 mb-2">💬 留言板</h2>
           <p class="subtitle text-sm md:text-base text-75 mb-3">欢迎来到留言板！这里是一个自由交流的空间，你可以：</p>
 
+          <!-- ✅ 功能列表：绿点替代 emoji -->
           <ul class="features-list space-y-2 mb-4 list-none">
             <li class="text-75 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> 分享你的想法和观点</li>
             <li class="text-75 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> 留下你的建议和反馈</li>
@@ -38,6 +39,7 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
 
         <div class="notice-section mb-6 p-4 rounded-lg bg-[var(--bg-secondary)] border border-[var(--line-divider)]">
           <h3 class="notice-title text-base font-semibold text-90 mb-2">温馨提示：</h3>
+          <!-- ✅ 温馨提示：绿点替代文字 -->
           <ul class="notice-list space-y-1 text-sm text-75 list-none">
             <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> 请保持友善和尊重，营造良好的交流氛围</li>
             <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> 欢迎分享你的想法，也可以提出对网站的建议</li>
@@ -55,57 +57,65 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
   </div>
 </MainGridLayout>
 
-<!-- ✅ 保留 defer 脚本（按你的要求） -->
+<!-- ✅ 保留 defer 脚本（按你明确要求） -->
 <script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
 
-<!-- ✅ 增强初始化逻辑：兼容 defer + 客户端导航 -->
+<!-- ✅ 增强初始化逻辑：解决跨页导航不显示问题 -->
 <script>
+  let hasInitialized = false;
+
   function initTwikoo() {
     const container = document.getElementById('twikoo');
-    if (!container || container.children.length > 0) return; // 已初始化
+    if (!container) return;
 
-    // 即使 window.twikoo 存在，也尝试 init（安全）
-    if (typeof window.twikoo !== 'undefined') {
-      try {
-        window.twikoo.init({
-          envId: "https://twikoo-api-gmgc.vercel.app/",
-          el: '#twikoo',
-          path: '/guestbook',
-          lang: 'zh-CN'
-        });
-      } catch (err) {
-        console.error('Twikoo init error:', err);
-      }
-    } else {
-      // SDK 尚未加载完成，轮询等待（间隔稍长，避免性能问题）
+    // 强制清空容器，确保无残留
+    container.innerHTML = '';
+
+    // 如果 Twikoo SDK 还未加载，轮询等待（最多 3 秒）
+    if (typeof window.twikoo === 'undefined') {
       let attempts = 0;
-      const maxAttempts = 50; // 最多等 5 秒（100ms * 50）
-      const checkInterval = setInterval(() => {
+      const maxAttempts = 60; // 60 * 50ms = 3000ms
+      const interval = setInterval(() => {
         if (typeof window.twikoo !== 'undefined') {
-          clearInterval(checkInterval);
-          initTwikoo(); // 递归调用，走上面分支
+          clearInterval(interval);
+          initTwikoo();
         } else if (++attempts >= maxAttempts) {
-          clearInterval(checkInterval);
-          console.warn('Twikoo SDK failed to load within timeout.');
+          clearInterval(interval);
+          console.warn('[Twikoo] SDK failed to load within 3 seconds.');
         }
-      }, 100);
+      }, 50);
+      return;
+    }
+
+    // 执行初始化
+    try {
+      window.twikoo.init({
+        envId: "https://twikoo-api-gmgc.vercel.app/",
+        el: '#twikoo',
+        path: '/guestbook',
+        lang: 'zh-CN'
+      });
+      hasInitialized = true;
+    } catch (err) {
+      console.error('[Twikoo] Initialization error:', err);
     }
   }
 
-  // 初始加载
+  // 初始页面加载时初始化
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTwikoo);
   } else {
     initTwikoo();
   }
 
-  // Astro 客户端导航：每次页面切换都尝试初始化
+  // Astro 客户端导航：每次页面切换都尝试重新初始化
   if (typeof window !== 'undefined') {
     window.addEventListener('astro:page-load', () => {
-      // 确保 DOM 更新完成后再初始化
-      requestAnimationFrame(() => {
-        setTimeout(initTwikoo, 0);
-      });
+      // 关键：延迟 300ms 确保 defer 脚本已执行完毕
+      setTimeout(() => {
+        hasInitialized = false; // 允许重新初始化
+        initTwikoo();
+      }, 300);
     });
   }
 </script>
