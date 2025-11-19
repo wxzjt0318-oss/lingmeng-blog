@@ -272,6 +272,11 @@ export const navBarConfig: NavBarConfig = {
 				},
 			],
 		},
+		{
+			name: "留言版",
+			url: "/visitorbook",
+			icon: "material-symbols:chat",
+		},
 	],
 };
 export const profileConfig: ProfileConfig = {
