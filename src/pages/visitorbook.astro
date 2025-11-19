@@ -9,11 +9,11 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
 ---
 
 <MainGridLayout title={pageTitle} description={pageSubtitle}>
-  <!-- Hero 区（修复文字清晰度） -->
-  <div class="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-gray-900 py-6 mb-6 rounded-t-[var(--radius-large)]">
+  <!-- Hero 区（昼夜自适应 + 文字清晰） -->
+  <div class="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-gray-900 dark:text-white py-6 mb-6 rounded-t-[var(--radius-large)]">
     <div class="max-w-4xl mx-auto px-4 text-center">
-      <h1 class="text-3xl md:text-4xl font-bold leading-tight drop-shadow-sm">{pageTitle}</h1>
-      <p class="mt-2 opacity-90 text-sm md:text-base drop-shadow-sm">{pageSubtitle}</p>
+      <h1 class="text-3xl md:text-4xl font-bold leading-tight drop-shadow-sm dark:drop-shadow-md">{pageTitle}</h1>
+      <p class="mt-2 opacity-90 text-sm md:text-base drop-shadow-sm dark:drop-shadow-md">{pageSubtitle}</p>
     </div>
   </div>
 
