@@ -1,9 +1,12 @@
 ---
 import Layout from '@layouts/Layout.astro';
+import TwikooComments from '@components/TwikooComments.astro';
 ---
 
 <Layout title="留言版">
   <h1>💬 留言板</h1>
-  <p>功能维护中，请稍后再试。</p>
-  <!-- 先注释掉所有 script -->
+  <p>欢迎在这里分享你的心情、想法或建议。</p>
+  
+  <!-- 使用和文章页完全相同的评论组件 -->
+  <TwikooComments path="/visitorbook" elId="twikoo-visitorbook" />
 </Layout>
