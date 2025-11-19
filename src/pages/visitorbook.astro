@@ -17,7 +17,7 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
     </div>
   </div>
 
-  <!-- 主内容区（复用 diary 的卡片容器） -->
+  <!-- 主内容区 -->
   <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
     <div class="card-base z-10 px-4 py-4 md:px-6 md:py-5 relative w-full">
       <div class="relative max-w-4xl mx-auto">
@@ -55,22 +55,50 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
   </div>
 </MainGridLayout>
 
-<!-- Twikoo 评论系统（完全保留你的原始接入方式） -->
+<!-- ✅ 保留 defer 脚本：确保刷新时能加载 SDK -->
 <script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
+
+<!-- ✅ 初始化逻辑：兼容完整加载 + 客户端导航 -->
 <script>
-  window.addEventListener('load', () => {
-    if (typeof window.twikoo === 'undefined') return;
-    try {
-      window.twikoo.init({
-        envId: "https://twikoo-api-gmgc.vercel.app/",
-        el: '#twikoo',
-        path: '/guestbook',
-        lang: 'zh-CN'
-      });
-    } catch (err) {
-      console.error('Twikoo init error:', err);
+  function initTwikoo() {
+    const container = document.getElementById('twikoo');
+    // 防止重复初始化
+    if (!container || container.children.length > 0) return;
+
+    if (typeof window.twikoo !== 'undefined') {
+      try {
+        window.twikoo.init({
+          envId: "https://twikoo-api-gmgc.vercel.app/",
+          el: '#twikoo',
+          path: '/guestbook',
+          lang: 'zh-CN'
+        });
+      } catch (err) {
+        console.error('Twikoo init error:', err);
+      }
     }
-  });
+    // 如果 twikoo 还没加载，等它加载完再 init（极端情况兜底）
+    else {
+      const checkInterval = setInterval(() => {
+        if (typeof window.twikoo !== 'undefined') {
+          clearInterval(checkInterval);
+          initTwikoo();
+        }
+      }, 100);
+    }
+  }
+
+  // 场景1：完整页面加载（刷新）
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTwikoo);
+  } else {
+    initTwikoo();
+  }
+
+  // 场景2：Astro 客户端导航（点击跳转）
+  if (typeof window !== 'undefined') {
+    window.addEventListener('astro:page-load', initTwikoo);
+  }
 </script>
 
 <style>
