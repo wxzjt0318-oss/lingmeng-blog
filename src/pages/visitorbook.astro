@@ -3,33 +3,56 @@ import Layout from '@layouts/Layout.astro';
 
 export const frontmatter = {
 	title: '留言版',
-	description: '欢迎留言！',
+	description: '欢迎在这里留下你的足迹和想法。',
 	permalink: '/visitorbook',
 	layout: 'page',
 };
 ---
 
-<Layout title="留言版" description="欢迎留言！">
+<Layout title="留言版" description="欢迎在这里留下你的足迹和想法。">
   <article class="prose max-w-none dark:prose-invert">
     <h1>💬 留言板</h1>
-    <p>欢迎留下你的足迹！</p>
+    <p>欢迎在这里分享你的心情、想法或建议。</p>
   </article>
 
+  <!-- Twikoo 留言框容器 -->
   <div id="twikoo-visitorbook" class="mt-8"></div>
 
+  <!-- 样式调整（可选） -->
+  <style>
+    #twikoo-visitorbook {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+    }
+  </style>
+
+  <!-- 引入并初始化 Twikoo -->
   <script is:inline>
     (function() {
       if (typeof window === 'undefined') return;
-      
+
+      // 动态加载 Twikoo 脚本
       const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.min.js';
+      script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js'; // 使用标准版脚本
       script.onload = function() {
         if (typeof twikoo !== 'undefined') {
+          // 初始化 Twikoo
           twikoo.init({
-            url: 'https://twikoo-api-gmgc.vercel.app', // ✅ 只用 url，无 envId
+            url: 'https://twikoo-api-gmgc.vercel.app', // 自建 API 地址，无结尾斜杠
             el: '#twikoo-visitorbook',
-            path: '/visitorbook',
-            lang: 'zh-CN'
+            path: '/visitorbook', // 页面路径，用于区分不同页面的评论
+            lang: 'zh-CN', // 语言设置
+            commentCount: true, // 是否显示评论数量
+            inputPlaceholder: '说点什么吧～', // 输入框提示文字
+            emoji: [
+              'https://cdn.jsdelivr.net/gh/IKnowYou233/twikoo-emoji@main/emoji.json',
+              'https://cdn.jsdelivr.net/gh/IKnowYou233/twikoo-emoji@main/emoji-akashi.json'
+            ], // 表情包配置
+            dark: document.documentElement.classList.contains('dark') // 暗黑模式支持
           }).catch(function(err) {
             console.error('[Twikoo] 初始化失败:', err);
           });
