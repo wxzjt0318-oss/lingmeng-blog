@@ -3,23 +3,28 @@ import Layout from '@layouts/Layout.astro';
 ---
 
 <Layout title="留言版">
-  <h1>💬 留言板</h1>
-  <p>欢迎在这里分享你的心情、想法或建议。</p>
+  <div class="visitorbook-container">
+    <div class="visitorbook-header">
+      <h1>💬 留言板</h1>
+      <p class="subtitle">欢迎在这里分享你的心情、想法或建议～</p>
+      <div class="decoration-line"></div>
+    </div>
 
-  <!-- 评论容器 -->
-  <div id="twikoo"></div>
+    <div class="visitorbook-card">
+      <p class="prompt">✨ 第一次来？不妨留下你的足迹吧！</p>
+      <!-- 评论容器 -->
+      <div id="twikoo"></div>
+    </div>
+  </div>
 
-  <!-- 直接引入 Twikoo SDK（不使用 import()） -->
+  <!-- 引入 Twikoo SDK -->
   <script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
-
   <script>
-    // 等待 Twikoo 加载完成
     window.addEventListener('load', () => {
       if (typeof window.twikoo === 'undefined') {
         console.error('Twikoo not loaded!');
         return;
       }
-
       try {
         window.twikoo.init({
           envId: "https://twikoo-api-gmgc.vercel.app/",
@@ -32,4 +37,66 @@ import Layout from '@layouts/Layout.astro';
       }
     });
   </script>
+
+  <style>
+    .visitorbook-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .visitorbook-header h1 {
+      font-size: 2.2rem;
+      text-align: center;
+      margin-bottom: 0.6rem;
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+
+    .visitorbook-header .subtitle {
+      text-align: center;
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .decoration-line {
+      height: 2px;
+      width: 60px;
+      background: var(--accent-color);
+      margin: 0 auto 2rem;
+      border-radius: 1px;
+    }
+
+    .visitorbook-card {
+      background: rgba(30, 30, 40, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 1.8rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .visitorbook-card .prompt {
+      color: var(--text-light);
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    /* 适配移动端 */
+    @media (max-width: 768px) {
+      .visitorbook-container {
+        margin: 1.5rem auto;
+      }
+      .visitorbook-header h1 {
+        font-size: 1.8rem;
+      }
+      .visitorbook-card {
+        padding: 1.4rem;
+      }
+    }
+  </style>
 </Layout>
