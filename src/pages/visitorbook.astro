@@ -9,7 +9,7 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
 ---
 
 <MainGridLayout title={pageTitle} description={pageSubtitle}>
-  <!-- Hero 区 -->
+  <!-- Hero 区（昼夜自适应 + 文字清晰） -->
   <div class="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-gray-900 dark:text-white py-6 mb-6 rounded-t-[var(--radius-large)]">
     <div class="max-w-4xl mx-auto px-4 text-center">
       <h1 class="text-3xl md:text-4xl font-bold leading-tight drop-shadow-sm dark:drop-shadow-md">{pageTitle}</h1>
@@ -55,71 +55,58 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
   </div>
 </MainGridLayout>
 
-<!-- ✅ 保留 defer 脚本 -->
+<!-- ✅ 保留 defer 脚本（按你要求，不影响 SEO 或首次加载） -->
 <script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
 
+<!-- ✅ 动态加载 + 初始化 Twikoo（绕过全局脚本报错） -->
 <script>
-  // 防止重复初始化
-  let initialized = false;
-
-  function destroyTwikoo() {
+  function loadAndInitTwikoo() {
     const container = document.getElementById('twikoo');
     if (!container) return;
 
-    // 清空容器
+    // 防止重复初始化
+    if (container.dataset.twikooLoaded === 'true') return;
+    container.dataset.twikooLoaded = 'true';
+
+    // 清空容器（确保干净）
     container.innerHTML = '';
 
-    // 尝试销毁实例（Twikoo 私有 API）
-    if (typeof window.twikoo !== 'undefined' && window.twikoo._instance) {
+    // 动态创建 script 标签加载 Twikoo SDK
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js';
+    script.onload = () => {
       try {
-        window.twikoo._instance.destroy();
-      } catch (e) {
-        console.warn('[Twikoo] _instance.destroy failed:', e);
+        window.twikoo.init({
+          envId: "https://twikoo-api-gmgc.vercel.app/",
+          el: '#twikoo',
+          path: '/guestbook',
+          lang: 'zh-CN'
+        });
+      } catch (err) {
+        console.error('[Twikoo] Init failed after dynamic load:', err);
+        container.dataset.twikooLoaded = 'false'; // 允许重试
       }
-    }
-  }
-
-  function initTwikoo() {
-    const container = document.getElementById('twikoo');
-    if (!container) return;
-
-    // 强制销毁旧实例
-    destroyTwikoo();
-
-    // 等待 SDK 加载
-    if (typeof window.twikoo === 'undefined') {
-      setTimeout(initTwikoo, 100);
-      return;
-    }
-
-    try {
-      window.twikoo.init({
-        envId: "https://twikoo-api-gmgc.vercel.app/",
-        el: '#twikoo',
-        path: '/guestbook',
-        lang: 'zh-CN'
-      });
-      initialized = true;
-    } catch (err) {
-      console.error('[Twikoo] Init failed:', err);
-    }
+    };
+    script.onerror = () => {
+      console.error('[Twikoo] Failed to load SDK dynamically');
+      container.dataset.twikooLoaded = 'false';
+    };
+    document.head.appendChild(script);
   }
 
   // 初始加载
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTwikoo);
+    document.addEventListener('DOMContentLoaded', loadAndInitTwikoo);
   } else {
-    initTwikoo();
+    loadAndInitTwikoo();
   }
 
-  // Astro 客户端导航：每次进入都尝试初始化
+  // Astro 客户端导航支持：每次进入页面都尝试加载
   if (typeof window !== 'undefined') {
     window.addEventListener('astro:page-load', () => {
-      // 延迟确保 defer 脚本已执行
-      setTimeout(() => {
-        initialized = false; // 允许重新初始化
-        initTwikoo();
-      }, 300);
+      requestAnimationFrame(() => {
+        setTimeout(loadAndInitTwikoo, 100);
+      });
     });
   }
 </script>
