@@ -26,7 +26,7 @@ export const frontmatter = {
       script.onload = function() {
         if (typeof twikoo !== 'undefined') {
           twikoo.init({
-            url: 'https://twikoo-api-gmgc.vercel.app', // ✅ 关键：无 envId，无结尾斜杠
+            url: 'https://twikoo-api-gmgc.vercel.app', // ✅ 只用 url，无 envId
             el: '#twikoo-visitorbook',
             path: '/visitorbook',
             lang: 'zh-CN'
