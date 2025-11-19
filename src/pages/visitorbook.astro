@@ -2,19 +2,37 @@
 import Layout from '@layouts/Layout.astro';
 ---
 
-<Layout title="留言版">
+<Layout title="留言板">
   <div class="visitorbook-container">
     <div class="visitorbook-header">
       <h1>💬 留言板</h1>
-      <p class="subtitle">欢迎在这里分享你的心情、想法或建议～</p>
-      <div class="decoration-line"></div>
+      <p class="subtitle">欢迎来到留言板！这里是一个自由交流的空间，你可以：</p>
+
+      <ul class="features-list">
+        <li><span class="emoji">💭</span> 分享你的想法和观点</li>
+        <li><span class="emoji">📝</span> 留下你的建议和反馈</li>
+        <li><span class="emoji">🎨</span> 记录你的心情和故事</li>
+        <li><span class="emoji">🤝</span> 与其他访客互动交流</li>
+      </ul>
+
+      <p class="welcome-text">无论你想说什么，都欢迎在下方评论区留言！</p>
     </div>
 
-    <div class="visitorbook-card">
-      <p class="prompt">✨ 第一次来？不妨留下你的足迹吧！</p>
-      <!-- 评论容器 -->
-      <div id="twikoo"></div>
+    <!-- 温馨提示 -->
+    <div class="notice-section">
+      <h3 class="notice-title">温馨提示：</h3>
+      <ul class="notice-list">
+        <li>请保持友善和尊重，营造良好的交流氛围</li>
+        <li>欢迎分享你的想法，也可以提出对网站的建议</li>
+        <li>你的每一条留言都是对我最大的支持 ✨</li>
+      </ul>
     </div>
+
+    <!-- 分隔线 -->
+    <div class="divider"></div>
+
+    <!-- 评论容器 -->
+    <div id="twikoo"></div>
   </div>
 
   <!-- 引入 Twikoo SDK -->
@@ -40,87 +58,107 @@ import Layout from '@layouts/Layout.astro';
       max-width: 800px;
       margin: 2rem auto;
       padding: 0 1.5rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
     }
 
     .visitorbook-header h1 {
-      font-size: 2.2rem;
-      text-align: center;
-      margin-bottom: 0.6rem;
-      color: var(--accent-color);
-      font-weight: 600;
+      font-size: 1.8rem;
+      color: #333;
+      margin-bottom: 0.8rem;
+      text-align: left;
     }
 
     .visitorbook-header .subtitle {
-      text-align: center;
-      color: var(--text-light);
-      margin-bottom: 1.5rem;
-      font-size: 1.1rem;
-      opacity: 0.9;
-    }
-
-    .decoration-line {
-      height: 2px;
-      width: 60px;
-      background: var(--accent-color);
-      margin: 0 auto 2rem;
-      border-radius: 1px;
-    }
-
-    .visitorbook-card {
-      background: #f8d1e5 !important; /* 淡粉色背景 */
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 1.8rem;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .visitorbook-card .prompt {
-      color: var(--text-light);
+      color: #666;
+      margin-bottom: 1rem;
       font-size: 1rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-      opacity: 0.85;
+    }
+
+    .features-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+
+    .features-list li {
+      margin: 0.6rem 0;
+      color: #555;
+      display: flex;
+      align-items: center;
+    }
+
+    .features-list .emoji {
+      margin-right: 0.6rem;
+      font-size: 1.1rem;
+    }
+
+    .welcome-text {
+      color: #666;
+      margin: 1.2rem 0;
+      font-size: 1rem;
+    }
+
+    /* 温馨提示 */
+    .notice-section {
+      margin: 2rem 0;
+      padding: 1.2rem;
+      background-color: #f9f9f9;
+      border-radius: 12px;
+      border: 1px solid #eaeaea;
+    }
+
+    .notice-title {
+      font-size: 1.1rem;
+      color: #333;
+      margin-bottom: 0.8rem;
+      font-weight: 500;
+    }
+
+    .notice-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .notice-list li {
+      margin: 0.6rem 0;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    /* 分隔线 */
+    .divider {
+      height: 4px;
+      background: linear-gradient(90deg, #e0f7f1, #ffffff, #e0f7f1);
+      margin: 2rem 0;
+      border-radius: 2px;
+    }
+
+    /* Twikoo 容器样式（适配新布局） */
+    #twikoo {
+      margin-top: 2rem;
+      width: 100%;
+      min-height: 300px;
     }
 
     /* 移动端适配 */
     @media (max-width: 768px) {
       .visitorbook-container {
-        margin: 1.5rem auto;
         padding: 0 1rem;
       }
 
       .visitorbook-header h1 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
       }
 
-      .visitorbook-header .subtitle {
-        font-size: 1rem;
-      }
-
-      .visitorbook-card {
-        padding: 1.4rem;
-      }
-
-      .visitorbook-card .prompt {
+      .features-list li,
+      .notice-list li {
         font-size: 0.9rem;
       }
 
-      /* 调整 Twikoo 样式 */
-      .twikoo input,
-      .twikoo textarea,
-      .twikoo button {
-        font-size: 0.9rem;
-        padding: 0.8rem;
-      }
-
-      .twikoo .comment-item {
-        padding: 1rem;
-      }
-
-      .twikoo .btn-primary {
-        font-size: 0.9rem;
-        padding: 0.8rem 1.2rem;
+      .divider {
+        height: 3px;
       }
     }
   </style>
