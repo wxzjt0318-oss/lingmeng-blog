@@ -26,7 +26,6 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
           <h2 class="text-xl md:text-2xl font-bold text-90 mb-2">💬 留言板</h2>
           <p class="subtitle text-sm md:text-base text-75 mb-3">欢迎来到留言板！这里是一个自由交流的空间，你可以：</p>
 
-          <!-- ✅ 功能列表：绿点替代 emoji -->
           <ul class="features-list space-y-2 mb-4 list-none">
             <li class="text-75 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> 分享你的想法和观点</li>
             <li class="text-75 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> 留下你的建议和反馈</li>
@@ -39,7 +38,6 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
 
         <div class="notice-section mb-6 p-4 rounded-lg bg-[var(--bg-secondary)] border border-[var(--line-divider)]">
           <h3 class="notice-title text-base font-semibold text-90 mb-2">温馨提示：</h3>
-          <!-- ✅ 温馨提示：绿点替代文字 -->
           <ul class="notice-list space-y-1 text-sm text-75 list-none">
             <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> 请保持友善和尊重，营造良好的交流氛围</li>
             <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> 欢迎分享你的想法，也可以提出对网站的建议</li>
@@ -57,64 +55,54 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
   </div>
 </MainGridLayout>
 
-<!-- ✅ 动态加载并初始化 Twikoo（解决跨页不显示问题） -->
+<!-- ✅ 保留 defer 脚本（按你的要求） -->
+<script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
+
+<!-- ✅ 增强初始化逻辑：兼容 defer + 客户端导航 -->
 <script>
-  let twikooLoadPromise = null;
-
-  function loadTwikooScript() {
-    if (twikooLoadPromise) return twikooLoadPromise;
-
-    // 如果已存在，直接 resolve
-    if (typeof window.twikoo !== 'undefined') {
-      return Promise.resolve(window.twikoo);
-    }
-
-    twikooLoadPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js';
-      script.async = true;
-      script.onload = () => {
-        if (window.twikoo) {
-          resolve(window.twikoo);
-        } else {
-          reject(new Error('Twikoo global not found after script load'));
-        }
-      };
-      script.onerror = () => reject(new Error('Failed to load Twikoo script'));
-      document.head.appendChild(script);
-    });
-
-    return twikooLoadPromise;
-  }
-
-  async function initTwikoo() {
+  function initTwikoo() {
     const container = document.getElementById('twikoo');
-    // 防止重复初始化
-    if (!container || container.children.length > 0) return;
+    if (!container || container.children.length > 0) return; // 已初始化
 
-    try {
-      const twikoo = await loadTwikooScript();
-      await twikoo.init({
-        envId: "https://twikoo-api-gmgc.vercel.app/",
-        el: '#twikoo',
-        path: '/guestbook',
-        lang: 'zh-CN'
-      });
-    } catch (err) {
-      console.error('Twikoo initialization failed:', err);
+    // 即使 window.twikoo 存在，也尝试 init（安全）
+    if (typeof window.twikoo !== 'undefined') {
+      try {
+        window.twikoo.init({
+          envId: "https://twikoo-api-gmgc.vercel.app/",
+          el: '#twikoo',
+          path: '/guestbook',
+          lang: 'zh-CN'
+        });
+      } catch (err) {
+        console.error('Twikoo init error:', err);
+      }
+    } else {
+      // SDK 尚未加载完成，轮询等待（间隔稍长，避免性能问题）
+      let attempts = 0;
+      const maxAttempts = 50; // 最多等 5 秒（100ms * 50）
+      const checkInterval = setInterval(() => {
+        if (typeof window.twikoo !== 'undefined') {
+          clearInterval(checkInterval);
+          initTwikoo(); // 递归调用，走上面分支
+        } else if (++attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+          console.warn('Twikoo SDK failed to load within timeout.');
+        }
+      }, 100);
     }
   }
 
-  // 初始加载（直接访问页面）
+  // 初始加载
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTwikoo);
   } else {
     initTwikoo();
   }
 
-  // Astro 客户端导航：每次进入页面都尝试初始化
+  // Astro 客户端导航：每次页面切换都尝试初始化
   if (typeof window !== 'undefined') {
     window.addEventListener('astro:page-load', () => {
+      // 确保 DOM 更新完成后再初始化
       requestAnimationFrame(() => {
         setTimeout(initTwikoo, 0);
       });
