@@ -274,7 +274,7 @@ export const navBarConfig: NavBarConfig = {
 		},
 		{
 			name: "留言版",
-			url: "/visitorbook",
+			url: "/visitorbook/",
 			icon: "material-symbols:chat",
 		},
 	],
