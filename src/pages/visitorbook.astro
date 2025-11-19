@@ -1,9 +1,8 @@
 ---
 import type { Frontmatter } from '@types';
 import Layout from '@layouts/Layout.astro';
-import { SITE, commentConfig } from '@config';
-// 删除 MarkdownContent 和 load 相关
-import { load } from '@astrojs/markdown-remark';
+import { commentConfig } from '@config';
+// 删除所有 markdown-remark 相关导入！
 
 export const frontmatter: Frontmatter = {
 	title: '留言版',
@@ -12,30 +11,25 @@ export const frontmatter: Frontmatter = {
 	layout: 'page',
 	showLastModified: false,
 };
-
-const pageContent = `
-# 💬 留言板
-
-欢迎来到我的留言板！在这里，你可以：
-- 分享你的心情和想法
-- 提出问题或建议
-- 与我和其他访客交流
-- 留下你的足迹
-
-> 每一个留言都是珍贵的记忆，感谢你愿意在这里停留。
-
-**温馨提示**：留言时请遵守网络礼仪，互相尊重，共同营造一个温馨的交流空间。
-`;
-
-const { Content } = await load(pageContent);
 ---
 
 <Layout {...frontmatter} title="留言版 - 灵梦的小站" description={frontmatter.description}>
   <article class="prose prose-zinc max-w-none dark:prose-invert">
-    <Content />
+    <h1 id="留言板">💬 留言板</h1>
+    <p>欢迎来到我的留言板！在这里，你可以：</p>
+    <ul>
+      <li>分享你的心情和想法</li>
+      <li>提出问题或建议</li>
+      <li>与我和其他访客交流</li>
+      <li>留下你的足迹</li>
+    </ul>
+    <blockquote>
+      <p>每一个留言都是珍贵的记忆，感谢你愿意在这里停留。</p>
+    </blockquote>
+    <p><strong>温馨提示</strong>：留言时请遵守网络礼仪，互相尊重，共同营造一个温馨的交流空间。</p>
   </article>
 
-  <!-- 下面 Twikoo 部分保持不变 -->
+  <!-- Twikoo 部分保持不变 -->
   <div class="mt-12">
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">
       🌟 访客留言
