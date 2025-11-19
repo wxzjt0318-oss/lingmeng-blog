@@ -28,7 +28,6 @@ export const frontmatter: Frontmatter = {
     <p><strong>温馨提示</strong>：留言时请遵守网络礼仪，互相尊重，共同营造一个温馨的交流空间。</p>
   </article>
 
-  <!-- Twikoo 区域 -->
   <div class="mt-12">
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">
       🌟 访客留言
@@ -36,7 +35,6 @@ export const frontmatter: Frontmatter = {
     <div id="twikoo-visitorbook" class="twikoo-container"></div>
   </div>
 
-  <!-- 样式 -->
   <style>
     .twikoo-container {
       max-width: 800px;
@@ -53,7 +51,7 @@ export const frontmatter: Frontmatter = {
     }
   </style>
 
-  <!-- 引入并初始化 Twikoo -->
+  <!-- 正确加载 Twikoo -->
   <script is:inline>
     if (typeof window !== 'undefined') {
       const initTwikoo = () => {
@@ -62,7 +60,7 @@ export const frontmatter: Frontmatter = {
         script.onload = () => {
           if (typeof twikoo !== 'undefined') {
             twikoo.init({
-              envId: 'your-env-id-here', // ← 替换为真实的 envId
+              url: 'https://twikoo-api-gmgc.vercel.app', // ✅ 无结尾斜杠！
               el: '#twikoo-visitorbook',
               path: '/visitorbook',
               lang: 'zh-CN',
