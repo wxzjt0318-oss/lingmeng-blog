@@ -21,10 +21,7 @@ import Layout from '@layouts/Layout.astro';
   <script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
   <script>
     window.addEventListener('load', () => {
-      if (typeof window.twikoo === 'undefined') {
-        console.error('Twikoo not loaded!');
-        return;
-      }
+      if (typeof window.twikoo === 'undefined') return;
       try {
         window.twikoo.init({
           envId: "https://twikoo-api-gmgc.vercel.app/",
@@ -70,7 +67,7 @@ import Layout from '@layouts/Layout.astro';
     }
 
     .visitorbook-card {
-      background: rgba(30, 30, 40, 0.6);
+      background: #f8d1e5 !important; /* 淡粉色背景 */
       backdrop-filter: blur(10px);
       border-radius: 16px;
       padding: 1.8rem;
@@ -86,16 +83,44 @@ import Layout from '@layouts/Layout.astro';
       opacity: 0.85;
     }
 
-    /* 适配移动端 */
+    /* 移动端适配 */
     @media (max-width: 768px) {
       .visitorbook-container {
         margin: 1.5rem auto;
+        padding: 0 1rem;
       }
+
       .visitorbook-header h1 {
         font-size: 1.8rem;
       }
+
+      .visitorbook-header .subtitle {
+        font-size: 1rem;
+      }
+
       .visitorbook-card {
         padding: 1.4rem;
+      }
+
+      .visitorbook-card .prompt {
+        font-size: 0.9rem;
+      }
+
+      /* 调整 Twikoo 样式 */
+      .twikoo input,
+      .twikoo textarea,
+      .twikoo button {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+      }
+
+      .twikoo .comment-item {
+        padding: 1rem;
+      }
+
+      .twikoo .btn-primary {
+        font-size: 0.9rem;
+        padding: 0.8rem 1.2rem;
       }
     }
   </style>
