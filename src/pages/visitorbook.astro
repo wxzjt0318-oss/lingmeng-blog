@@ -1,15 +1,9 @@
-<div id="twikoo-test"></div>
+---
+import Layout from '@layouts/Layout.astro';
+---
 
-<script is:inline>
-  // 最简测试
-  const s = document.createElement('script');
-  s.src = 'https://unpkg.com/twikoo@1.6.22/dist/twikoo.all.min.js';
-  s.onload = () => {
-    twikoo.init({
-      url: 'https://twikoo-api-gmgc.vercel.app',
-      el: '#twikoo-test',
-      path: '/test'
-    }).catch(console.error);
-  };
-  document.head.appendChild(s);
-</script>
+<Layout title="留言版">
+  <h1>💬 留言板</h1>
+  <p>功能维护中，请稍后再试。</p>
+  <!-- 先注释掉所有 script -->
+</Layout>
