@@ -5,19 +5,35 @@ import PostPage from "../components/PostPage.astro";
 import { PAGE_SIZE } from "../constants/constants";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 import { getSortedPosts } from "../utils/content-utils";
+import FullVisitorBookSection from "../components/FullVisitorBookSection.astro"; // 👈 新增导入
 
 export const getStaticPaths = (async ({ paginate }) => {
 	const allBlogPosts = await getSortedPosts();
 	return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
 }) satisfies GetStaticPaths;
-// https://github.com/withastro/astro/issues/6507#issuecomment-1489916992
 
 const { page } = Astro.props;
-
+const isHomePage = page.page === 1; // 判断是否为首页（第一页）
 const len = page.data.length;
 ---
 
 <MainGridLayout>
-    <PostPage page={page}></PostPage>
-    <Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${(len)*50}ms)`}></Pagination>
+	<PostPage page={page} />
+
+	<!-- ✅ 仅在首页显示完整留言板 -->
+	{isHomePage && (
+		<>
+			<div id="visitorbook"></div> <!-- 锚点目标 -->
+			<FullVisitorBookSection />
+		</>
+	)}
+
+	<!-- 分页导航（仅当总页数 > 1 时显示） -->
+	{page.totalPages > 1 && (
+		<Pagination
+			class="mx-auto onload-animation"
+			page={page}
+			style={`animation-delay: calc(var(--content-delay) + ${(len) * 50}ms)`}
+		/>
+	)}
 </MainGridLayout>
