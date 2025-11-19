@@ -1,9 +1,9 @@
 ---
-// src/components/SimpleVisitorBookSection.astro
-// 精简版留言板，风格匹配你提供的截图
+// src/components/VisitorBookPanel.astro
+// 完整留言板面板（可被 JS 动态插入）
 ---
 
-<div class="simple-visitorbook-container">
+<div class="visitorbook-panel">
   <div class="header">
     <span class="icon">💬</span>
     <h2>留言板</h2>
@@ -53,7 +53,7 @@
       window.twikoo.init({
         envId: "https://twikoo-api-gmgc.vercel.app/",
         el: '#twikoo',
-        path: '/', // ⭐ 共用首页评论池
+        path: '/', // ⭐ 所有页面共用评论池
         lang: 'zh-CN'
       });
     } catch (err) {
@@ -63,7 +63,7 @@
 </script>
 
 <style>
-  .simple-visitorbook-container {
+  .visitorbook-panel {
     max-width: 800px;
     margin: 2rem auto;
     padding: 1.5rem;
@@ -73,6 +73,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.7;
+    color: #333;
   }
 
   .header {
@@ -84,7 +85,6 @@
 
   .header h2 {
     font-size: 1.3rem;
-    color: #333;
     margin: 0;
     font-weight: 500;
   }
@@ -94,47 +94,29 @@
     color: #6c757d;
   }
 
-  .intro {
+  .intro, .welcome-text {
     color: #666;
-    margin-bottom: 1rem;
     font-size: 0.95rem;
+    margin: 1rem 0;
   }
 
-  .features-list {
+  .features-list, .notice-list {
     list-style: none;
     padding-left: 0;
     margin: 1rem 0;
   }
 
-  .features-list li {
+  .features-list li, .notice-list li {
     margin: 0.6rem 0;
-    color: #555;
     display: flex;
     align-items: center;
     font-size: 0.95rem;
+    color: #555;
   }
 
-  .features-list .emoji {
+  .emoji {
     margin-right: 0.6rem;
     font-size: 1rem;
-  }
-
-  .welcome-text {
-    color: #666;
-    margin: 1.2rem 0;
-    font-size: 0.95rem;
-  }
-
-  /* 分隔线 */
-  .divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #e9ecef, transparent);
-    margin: 1.5rem 0;
-  }
-
-  /* 温馨提示 */
-  .notice-section {
-    margin: 1rem 0;
   }
 
   .notice-title {
@@ -144,28 +126,20 @@
     margin-bottom: 0.5rem;
   }
 
-  .notice-list {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+    margin: 1.5rem 0;
   }
 
-  .notice-list li {
-    margin: 0.5rem 0;
-    color: #555;
-    font-size: 0.9rem;
-  }
-
-  /* Twikoo 容器样式 */
   #twikoo {
     margin-top: 1.5rem;
     width: 100%;
     min-height: 250px;
   }
 
-  /* 移动端适配 */
   @media (max-width: 768px) {
-    .simple-visitorbook-container {
+    .visitorbook-panel {
       padding: 1rem;
     }
     .header h2 {
