@@ -1,12 +1,27 @@
 ---
 import Layout from '@layouts/Layout.astro';
-import TwikooComments from '@components/TwikooComments.astro';
 ---
 
 <Layout title="留言版">
   <h1>💬 留言板</h1>
   <p>欢迎在这里分享你的心情、想法或建议。</p>
-  
-  <!-- 使用和文章页完全相同的评论组件 -->
-  <TwikooComments path="/visitorbook" elId="twikoo-visitorbook" />
+
+  <!-- 手动加载 Twikoo 评论框 -->
+  <div id="twikoo"></div>
+
+  <script is:load>
+    // 从配置中获取 envId（这里直接写死，因为 Astro 无法在客户端读取 import 的 config）
+    const envId = "https://twikoo-api-gmgc.vercel.app/";
+    const lang = "zh-CN";
+    const path = "/visitorbook";
+
+    import('https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js').then(() => {
+      twikoo.init({
+        envId: envId,
+        lang: lang,
+        el: '#twikoo',
+        path: path
+      });
+    });
+  </script>
 </Layout>
