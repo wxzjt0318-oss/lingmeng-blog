@@ -4,13 +4,12 @@ import { siteConfig } from "../config";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 
-// 可选：国际化标题（若未配置，使用默认中文）
 const pageTitle = i18n(I18nKey.guestbook) || "留言版";
 const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，分享你的想法";
 ---
 
 <MainGridLayout title={pageTitle} description={pageSubtitle}>
-  <!-- Hero 标题区（与 diary 完全一致） -->
+  <!-- Hero 区（与 diary 一致） -->
   <div class="w-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white py-6 mb-6 rounded-t-[var(--radius-large)]">
     <div class="max-w-4xl mx-auto px-4 text-center">
       <h1 class="text-2xl md:text-3xl font-bold">{pageTitle}</h1>
@@ -18,12 +17,11 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
     </div>
   </div>
 
-  <!-- 主内容区：复用 diary 的卡片容器结构 -->
+  <!-- 主内容区（复用 diary 的卡片容器） -->
   <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
     <div class="card-base z-10 px-4 py-4 md:px-6 md:py-5 relative w-full">
       <div class="relative max-w-4xl mx-auto">
 
-        <!-- 💬 你的原有留言板内容（稍作结构调整） -->
         <div class="visitorbook-header mb-6">
           <h2 class="text-xl md:text-2xl font-bold text-90 mb-2">💬 留言板</h2>
           <p class="subtitle text-sm md:text-base text-75 mb-3">欢迎来到留言板！这里是一个自由交流的空间，你可以：</p>
@@ -38,7 +36,6 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
           <p class="welcome-text text-75">无论你想说什么，都欢迎在下方评论区留言！</p>
         </div>
 
-        <!-- 温馨提示 -->
         <div class="notice-section mb-6 p-4 rounded-lg bg-[var(--bg-secondary)] border border-[var(--line-divider)]">
           <h3 class="notice-title text-base font-semibold text-90 mb-2">温馨提示：</h3>
           <ul class="notice-list space-y-1 text-sm text-75">
@@ -48,10 +45,9 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
           </ul>
         </div>
 
-        <!-- 分隔线 -->
         <div class="divider h-px bg-gradient-to-r from-transparent via-[var(--line-divider)] to-transparent my-6"></div>
 
-        <!-- Twikoo 评论区 -->
+        <!-- ✅ Twikoo 评论容器（保留原 ID） -->
         <div id="twikoo" class="w-full mt-4"></div>
 
       </div>
@@ -59,35 +55,25 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
   </div>
 </MainGridLayout>
 
-<!-- Twikoo 初始化脚本 -->
+<!-- ✅ 完全保留你原来的 Twikoo 接入方式 -->
+<script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
 <script>
   window.addEventListener('load', () => {
-    if (typeof window.twikoo === 'undefined') {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js';
-      script.onload = () => initTwikoo();
-      document.head.appendChild(script);
-    } else {
-      initTwikoo();
-    }
-
-    function initTwikoo() {
-      try {
-        window.twikoo.init({
-          envId: "https://twikoo-api-gmgc.vercel.app/",
-          el: '#twikoo',
-          path: '/guestbook', // 独立路径，避免与首页冲突
-          lang: 'zh-CN'
-        });
-      } catch (err) {
-        console.error('Twikoo init error:', err);
-      }
+    if (typeof window.twikoo === 'undefined') return;
+    try {
+      window.twikoo.init({
+        envId: "https://twikoo-api-gmgc.vercel.app/",
+        el: '#twikoo',
+        path: '/guestbook', // ⚠️ 关键：独立路径
+        lang: 'zh-CN'
+      });
+    } catch (err) {
+      console.error('Twikoo init error:', err);
     }
   });
 </script>
 
 <style>
-  /* 继承主题变量，无需重复定义颜色 */
   .visitorbook-header h2 {
     text-align: left;
   }
@@ -106,7 +92,6 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
     min-height: 300px;
   }
 
-  /* 响应式：小屏优化 */
   @media (max-width: 640px) {
     .card-base {
       margin: 0 -0.5rem;
