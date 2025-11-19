@@ -57,43 +57,62 @@ const pageSubtitle = i18n(I18nKey.guestbookSubtitle) || "留下你的足迹，�
   </div>
 </MainGridLayout>
 
-<!-- ✅ 保留 defer 脚本：确保刷新时能加载 SDK -->
-<script src="https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js" defer></script>
-
-<!-- ✅ 增强初始化逻辑：解决首次点击不显示问题 -->
+<!-- ✅ 动态加载并初始化 Twikoo（解决跨页不显示问题） -->
 <script>
-  function initTwikoo() {
+  let twikooLoadPromise = null;
+
+  function loadTwikooScript() {
+    if (twikooLoadPromise) return twikooLoadPromise;
+
+    // 如果已存在，直接 resolve
+    if (typeof window.twikoo !== 'undefined') {
+      return Promise.resolve(window.twikoo);
+    }
+
+    twikooLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/twikoo@latest/dist/twikoo.all.min.js';
+      script.async = true;
+      script.onload = () => {
+        if (window.twikoo) {
+          resolve(window.twikoo);
+        } else {
+          reject(new Error('Twikoo global not found after script load'));
+        }
+      };
+      script.onerror = () => reject(new Error('Failed to load Twikoo script'));
+      document.head.appendChild(script);
+    });
+
+    return twikooLoadPromise;
+  }
+
+  async function initTwikoo() {
     const container = document.getElementById('twikoo');
     // 防止重复初始化
     if (!container || container.children.length > 0) return;
 
-    if (typeof window.twikoo !== 'undefined') {
-      try {
-        window.twikoo.init({
-          envId: "https://twikoo-api-gmgc.vercel.app/",
-          el: '#twikoo',
-          path: '/guestbook',
-          lang: 'zh-CN'
-        });
-      } catch (err) {
-        console.error('Twikoo init error:', err);
-      }
-    } else {
-      const checkInterval = setInterval(() => {
-        if (typeof window.twikoo !== 'undefined') {
-          clearInterval(checkInterval);
-          initTwikoo();
-        }
-      }, 100);
+    try {
+      const twikoo = await loadTwikooScript();
+      await twikoo.init({
+        envId: "https://twikoo-api-gmgc.vercel.app/",
+        el: '#twikoo',
+        path: '/guestbook',
+        lang: 'zh-CN'
+      });
+    } catch (err) {
+      console.error('Twikoo initialization failed:', err);
     }
   }
 
+  // 初始加载（直接访问页面）
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTwikoo);
   } else {
     initTwikoo();
   }
 
+  // Astro 客户端导航：每次进入页面都尝试初始化
   if (typeof window !== 'undefined') {
     window.addEventListener('astro:page-load', () => {
       requestAnimationFrame(() => {
