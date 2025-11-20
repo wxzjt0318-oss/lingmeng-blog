@@ -250,7 +250,15 @@ const stats = {
 			ratedAnime.length
 		).toFixed(1);
 	})(),
-	lastUpdated: new Date().toLocaleString('zh-CN'), // 包含日期和时间
+	lastUpdated: new Date().toLocaleString('zh-CN', { 
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }), // 包含日期和时间，使用北京时间
 };
 
 // 计算各状态的数量
@@ -320,24 +328,24 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
         <!-- 过滤按钮 - 参考Firefly设计 -->
         <div class="mb-6">
           <div class="filter-container flex flex-wrap gap-2">
-            <button class="filter-tag" data-status="all" onclick="updateFilter('all', event)">
+            <button class="filter-tag {selectedStatus === 'all' ? 'active' : ''}" data-status="all" onclick="updateFilter('all', event)">
               全部 <span class="ml-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full px-2 py-0.5 text-xs">{animeList.length}</span>
             </button>
-            <button class="filter-tag" data-status="watching" onclick="updateFilter('watching', event)">
+            <button class="filter-tag {selectedStatus === 'watching' ? 'active' : ''}" data-status="watching" onclick="updateFilter('watching', event)">
               {i18n(I18nKey.animeStatusWatching)} <span class="ml-1 bg-green-200 dark:bg-green-700 text-green-800 dark:text-green-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.watching}</span>
             </button>
-            <button class="filter-tag" data-status="planned" onclick="updateFilter('planned', event)">
+            <button class="filter-tag {selectedStatus === 'planned' ? 'active' : ''}" data-status="planned" onclick="updateFilter('planned', event)">
               {i18n(I18nKey.animeStatusPlanned)} <span class="ml-1 bg-amber-200 dark:bg-amber-700 text-amber-800 dark:text-amber-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.planned}</span>
             </button>
-            <button class="filter-tag" data-status="completed" onclick="updateFilter('completed', event)">
+            <button class="filter-tag {selectedStatus === 'completed' ? 'active' : ''}" data-status="completed" onclick="updateFilter('completed', event)">
               {i18n(I18nKey.animeStatusCompleted)} <span class="ml-1 bg-blue-200 dark:bg-blue-700 text-blue-800 dark:text-blue-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.completed}</span>
             </button>
             {ANIME_MODE === 'bangumi' && (
               <>
-                <button class="filter-tag" data-status="onhold" onclick="updateFilter('onhold', event)">
+                <button class="filter-tag {selectedStatus === 'onhold' ? 'active' : ''}" data-status="onhold" onclick="updateFilter('onhold', event)">
                   {i18n(I18nKey.animeStatusOnHold)} <span class="ml-1 bg-purple-200 dark:bg-purple-700 text-purple-800 dark:text-purple-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.onhold}</span>
                 </button>
-                <button class="filter-tag" data-status="dropped" onclick="updateFilter('dropped', event)">
+                <button class="filter-tag {selectedStatus === 'dropped' ? 'active' : ''}" data-status="dropped" onclick="updateFilter('dropped', event)">
                   {i18n(I18nKey.animeStatusDropped)} <span class="ml-1 bg-red-200 dark:bg-red-700 text-red-800 dark:text-red-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.dropped}</span>
                 </button>
               </>
@@ -845,7 +853,7 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
       filterTags.forEach(tag => {
         const clickHandler = function() {
           // 防止重复点击
-          if (this.classList.contains('active')) return;
+          if (this.getAttribute('data-status') === currentStatus) return;
           
           // 移除所有active类
           filterTags.forEach(t => t.classList.remove('active'));
