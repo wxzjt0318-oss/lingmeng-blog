@@ -237,14 +237,26 @@ const i18nTexts = {
         <!-- 过滤按钮 -->
         <div class="mb-6">
           <div class="filter-container flex flex-wrap gap-2">
-            <button class="filter-tag active" data-status="all">{i18n(I18nKey.animeFilterAll)}</button>
-            <button class="filter-tag" data-status="watching">{i18n(I18nKey.animeStatusWatching)}</button>
-            <button class="filter-tag" data-status="planned">{i18n(I18nKey.animeStatusPlanned)}</button>
-            <button class="filter-tag" data-status="completed">{i18n(I18nKey.animeStatusCompleted)}</button>
+            <button class="filter-tag active" data-status="all" data-count="{stats.total}">
+              {i18n(I18nKey.animeFilterAll)} ({stats.total})
+            </button>
+            <button class="filter-tag" data-status="watching" data-count="{stats.watching}">
+              {i18n(I18nKey.animeStatusWatching)} ({stats.watching})
+            </button>
+            <button class="filter-tag" data-status="planned" data-count="{stats.planned}">
+              {i18n(I18nKey.animeStatusPlanned)} ({stats.planned})
+            </button>
+            <button class="filter-tag" data-status="completed" data-count="{stats.completed}">
+              {i18n(I18nKey.animeStatusCompleted)} ({stats.completed})
+            </button>
             {ANIME_MODE === 'bangumi' && (
               <>
-                <button class="filter-tag" data-status="onhold">{i18n(I18nKey.animeStatusOnHold)}</button>
-                <button class="filter-tag" data-status="dropped">{i18n(I18nKey.animeStatusDropped)}</button>
+                <button class="filter-tag" data-status="onhold" data-count="{stats.onhold}">
+                  {i18n(I18nKey.animeStatusOnHold)} ({stats.onhold})
+                </button>
+                <button class="filter-tag" data-status="dropped" data-count="{stats.dropped}">
+                  {i18n(I18nKey.animeStatusDropped)} ({stats.dropped})
+                </button>
               </>
             )}
           </div>
@@ -390,6 +402,29 @@ const i18nTexts = {
       return map[status] || { text: status, class: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300", icon: "?" };
     }
 
+    // 新增函数：更新所有按钮的数字
+    function updateFilterCounts() {
+      const counts = {
+        all: animeList.length,
+        watching: animeList.filter(a => a.status === 'watching').length,
+        planned: animeList.filter(a => a.status === 'planned').length,
+        completed: animeList.filter(a => a.status === 'completed').length,
+        onhold: animeList.filter(a => a.status === 'onhold').length,
+        dropped: animeList.filter(a => a.status === 'dropped').length,
+      };
+
+      const tags = document.querySelectorAll('.filter-tag');
+      tags.forEach(tag => {
+        const status = tag.getAttribute('data-status');
+        if (status && counts.hasOwnProperty(status)) {
+          const count = counts[status];
+          const originalText = tag.textContent.split('(')[0].trim(); // 提取原始文字
+          tag.textContent = `${originalText} (${count})`;
+          tag.setAttribute('data-count', count);
+        }
+      });
+    }
+
     // 初始化过滤
     function initFilterButtons() {
       const tags = document.querySelectorAll('.filter-tag');
@@ -397,13 +432,20 @@ const i18nTexts = {
         tag.addEventListener('click', () => {
           tags.forEach(t => t.classList.remove('active'));
           tag.classList.add('active');
+
           const status = tag.getAttribute('data-status');
           currentFilteredAnime = status === 'all' ? [...animeList] : animeList.filter(a => a.status === status);
           currentPage = 1;
           renderAnimeList();
           renderPagination(currentFilteredAnime.length);
+
+          // 更新所有按钮的数字
+          updateFilterCounts();
         });
       });
+
+      // 初始渲染一次按钮数字
+      updateFilterCounts();
     }
 
     // 初始渲染
