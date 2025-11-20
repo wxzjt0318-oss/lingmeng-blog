@@ -1069,6 +1069,24 @@ const sortedAnimeList = [...animeList].sort((a, b) => {
       
       // 初始化分页
       updateFilteredItems();
+      
+      // 添加翻页按钮事件监听器
+      document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          showPage(currentPage);
+          updatePagination();
+        }
+      });
+      
+      document.getElementById('next-page').addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+        if (currentPage < totalPages) {
+          currentPage++;
+          showPage(currentPage);
+          updatePagination();
+        }
+      });
     });
     
     // Swup页面切换后重新初始化
