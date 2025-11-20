@@ -1,28 +1,38 @@
 name: Deploy to GitHub Pages
+
 on:
-  # 每次推送到 `main` 分支时触发这个“工作流程”
-  # 如果你使用了别的分支名，请按需将 `main` 替换成你的分支名
   push:
     branches: [ main ]
-  # 允许你在 GitHub 上的 Actions 标签中手动触发此“工作流程”
   workflow_dispatch:
-# 允许 job 克隆 repo 并创建一个 page deployment
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
+
+      # 👇 新增：设置 BUILD_TIME 为北京时间
+      - name: Set BUILD_TIME to Beijing Time
+        env:
+          TZ: 'Asia/Shanghai'
+        run: |
+          echo "BUILD_TIME=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          echo "✅ Build time (Beijing): $(date '+%Y-%m-%d %H:%M:%S')"
+
       - name: Install, build, and upload your site
         uses: withastro/action@v3
-        # with:
-          # path: . # 存储库中 Astro 项目的根位置。（可选）
-          # node-version: 20 # 用于构建站点的特定 Node.js 版本，默认为 20。（可选）
-          # package-manager: pnpm@latest # 应使用哪个 Node.js 包管理器来安装依赖项和构建站点。会根据存储库中的 lockfile 自动检测。（可选）
+        with:
+          # path: .  # 默认就是当前目录，可省略
+          node-version: 20
+          # 如果你用 pnpm/yarn，取消注释下面一行并修改
+          # package-manager: pnpm@latest
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
