@@ -16,12 +16,6 @@ const BANGUMI_USER_ID = siteConfig.bangumi?.userId || "your-user-id";
 const BANGUMI_API_BASE = "https://api.bgm.tv/v0";
 const ANIME_MODE = siteConfig.anime?.mode || "bangumi";
 
-// 获取当前页码和每页数量
-const url = new URL(Astro.request.url);
-const currentPage = parseInt(url.searchParams.get('page') || '1');
-const itemsPerPage = 12; // 固定每页12项
-const selectedStatus = url.searchParams.get('status') || 'all';
-
 // 安全获取构建时间（部署时间）
 const rawBuildTime = import.meta.env.BUILD_TIME;
 let BUILD_TIME: string | null = null;
@@ -191,41 +185,6 @@ function getStatusInfo(status: string) {
 	};
 	return map[status] || { text: status, class: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300", icon: "?" };
 }
-
-// 过滤数据
-const filteredAnimeList = selectedStatus === 'all' 
-  ? animeList 
-  : animeList.filter(anime => anime.status === selectedStatus);
-
-// 分页数据
-const totalItems = filteredAnimeList.length;
-const totalPages = Math.ceil(totalItems / itemsPerPage);
-const startIndex = (currentPage - 1) * itemsPerPage;
-const paginatedAnimeList = filteredAnimeList.slice(startIndex, startIndex + itemsPerPage);
-
-// 分页按钮生成函数
-const getVisiblePageNumbers = (current: number, total: number, maxVisible = 5): number[] => {
-  if (total <= maxVisible) {
-    return Array.from({ length: total }, (_, i) => i + 1);
-  }
-
-  const half = Math.floor(maxVisible / 2);
-  let start = current - half;
-  let end = current + half;
-
-  if (start < 1) {
-    start = 1;
-    end = maxVisible;
-  }
-  if (end > total) {
-    end = total;
-    start = total - maxVisible + 1;
-  }
-
-  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-};
-
-const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
 ---
 
 <MainGridLayout title={i18n(I18nKey.anime)} description={i18n(I18nKey.animeSubtitle)}>
@@ -261,35 +220,52 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
         <!-- 过滤按钮 -->
         <div class="mb-6">
           <div class="filter-container flex flex-wrap gap-2">
-            <a href="?status=all" class={`filter-tag ${selectedStatus === 'all' ? 'active' : ''}`}>
+            <button 
+              class="filter-tag active" 
+              data-status="all"
+              aria-label={`显示全部 ${stats.total} 部`}
+            >
               {i18nTexts.filterAll} ({stats.total})
-            </a>
-            <a href="?status=watching" class={`filter-tag ${selectedStatus === 'watching' ? 'active' : ''}`}>
+            </button>
+            <button 
+              class="filter-tag" 
+              data-status="watching"
+              aria-label={`正在看 ${stats.watching} 部`}
+            >
               {i18nTexts.watching} ({stats.watching})
-            </a>
-            <a href="?status=planned" class={`filter-tag ${selectedStatus === 'planned' ? 'active' : ''}`}>
+            </button>
+            <button 
+              class="filter-tag" 
+              data-status="planned"
+              aria-label={`想看 ${stats.planned} 部`}
+            >
               {i18nTexts.planned} ({stats.planned})
-            </a>
-            <a href="?status=completed" class={`filter-tag ${selectedStatus === 'completed' ? 'active' : ''}`}>
+            </button>
+            <button 
+              class="filter-tag" 
+              data-status="completed"
+              aria-label={`已看完 ${stats.completed} 部`}
+            >
               {i18nTexts.completed} ({stats.completed})
-            </a>
+            </button>
             {ANIME_MODE === 'bangumi' && (
               <>
-                <a href="?status=onhold" class={`filter-tag ${selectedStatus === 'onhold' ? 'active' : ''}`}>
+                <button 
+                  class="filter-tag" 
+                  data-status="onhold"
+                  aria-label={`搁置 ${stats.onhold} 部`}
+                >
                   {i18nTexts.onhold} ({stats.onhold})
-                </a>
-                <a href="?status=dropped" class={`filter-tag ${selectedStatus === 'dropped' ? 'active' : ''}`}>
+                </button>
+                <button 
+                  class="filter-tag" 
+                  data-status="dropped"
+                  aria-label={`放弃 ${stats.dropped} 部`}
+                >
                   {i18nTexts.dropped} ({stats.dropped})
-                </a>
+                </button>
               </>
             )}
-          </div>
-        </div>
-        
-        <!-- 分页信息 -->
-        <div class="flex justify-between items-center mb-4">
-          <div class="text-sm text-black/60 dark:text-white/60">
-            显示第 {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredAnimeList.length)} 条，共 {filteredAnimeList.length} 条
           </div>
         </div>
       </div>
@@ -318,88 +294,10 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
                 : '请稍后刷新页面或联系站点管理员'}
             </p>
           </div>
-        ) : filteredAnimeList.length > 0 ? (
+        ) : animeList.length > 0 ? (
           <>
-            <div id="anime-list-container" class={`anime-grid-container grid gap-4 md:gap-6 list-mode ${isBothSidebarMode ? "both-sidebar" : "single-sidebar"}`}>
-              {paginatedAnimeList.map(anime => {
-                const statusInfo = getStatusInfo(anime.status);
-                const progressPercent = anime.totalEpisodes > 0 ? (anime.progress / anime.totalEpisodes) * 100 : 0;
-
-                return (
-                  <div class="group relative bg-[var(--card-bg)] border border-[var(--line-divider)] rounded-[var(--radius-large)] overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]" data-anime-status={anime.status}>
-                    <div class="relative aspect-[2/3] overflow-hidden">
-                      <a href={anime.link} target="_blank" rel="noopener noreferrer" class="block w-full h-full">
-                        <img src={anime.cover} alt={anime.title} class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy" />
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
-                              <svg class="w-6 h-6 text-gray-800 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                            </div>
-                          </div>
-                        </div>
-                      </a>
-                      <div class={`absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${statusInfo.class}`}>
-                        <span class="mr-1">{statusInfo.icon}</span><span>{statusInfo.text}</span>
-                      </div>
-                      <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
-                        <svg class="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                        <span>{anime.rating}</span>
-                      </div>
-                      {anime.status === 'watching' && (
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                          <div class="w-full bg-white/20 rounded-full h-1.5 mb-1">
-                            <div class="bg-gradient-to-r from-emerald-400 to-teal-400 h-1.5 rounded-full" style={`width: ${progressPercent}%`}></div>
-                          </div>
-                          <div class="text-white text-xs font-medium">{anime.progress}/{anime.totalEpisodes} ({Math.round(progressPercent)}%)</div>
-                        </div>
-                      )}
-                    </div>
-                    <div class="p-3">
-                      <h3 class="text-sm font-bold text-black/90 dark:text-white/90 mb-1 line-clamp-2 leading-tight">{anime.title}</h3>
-                      <p class="text-black/60 dark:text-white/60 text-xs mb-2 line-clamp-2">{anime.description}</p>
-                      <div class="space-y-1 text-xs">
-                        <div class="flex justify-between"><span class="text-black/50 dark:text-white/50">{i18nTexts.year}</span><span class="text-black/70 dark:text-white/70">{anime.year}</span></div>
-                        <div class="flex justify-between"><span class="text-black/50 dark:text-white/50">{i18nTexts.studio}</span><span class="text-black/70 dark:text-white/70 truncate ml-2">{anime.studio}</span></div>
-                        <div class="flex flex-wrap gap-1 mt-2">
-                          {anime.genre.map(g => <span class="px-1.5 py-0.5 bg-[var(--btn-regular-bg)] text-black/70 dark:text-white/70 rounded text-xs">{g}</span>)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            
-            {/* 分页导航 */}
-            {totalPages > 1 && (
-              <div class="flex justify-center gap-2 mt-6 flex-wrap">
-                {currentPage > 1 && (
-                  <a href={`?page=${currentPage - 1}&status=${selectedStatus}`} class="px-3 py-2 rounded bg-[var(--btn-regular-bg)] text-[var(--btn-content)] hover:bg-[var(--btn-hover-bg)] transition-colors">
-                    上一页
-                  </a>
-                )}
-                
-                {visiblePages.map(p => (
-                  <a 
-                    key={p}
-                    href={`?page=${p}&status=${selectedStatus}`} 
-                    class={`px-3 py-2 rounded transition-colors ${
-                      p === currentPage 
-                        ? 'bg-[var(--primary)] text-white' 
-                        : 'bg-[var(--btn-regular-bg)] text-[var(--btn-content)] hover:bg-[var(--btn-hover-bg)]'
-                    }`}
-                  >
-                    {p}
-                  </a>
-                ))}
-                
-                {currentPage < totalPages && (
-                  <a href={`?page=${currentPage + 1}&status=${selectedStatus}`} class="px-3 py-2 rounded bg-[var(--btn-regular-bg)] text-[var(--btn-content)] hover:bg-[var(--btn-hover-bg)] transition-colors">
-                    下一页
-                  </a>
-                )}
-              </div>
-            )}
+            <div id="anime-list-container" class={`anime-grid-container grid gap-4 md:gap-6 list-mode ${isBothSidebarMode ? "both-sidebar" : "single-sidebar"}`}></div>
+            <div id="pagination-controls" class="mt-6 flex justify-center gap-2 flex-wrap"></div>
           </>
         ) : (
           <div class="text-center py-12">
@@ -414,66 +312,213 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
     </div>
   </div>
 
-  <style>
-    .card-base { 
-      container-type: inline-size; 
+  <script is:inline define:vars={{ animeList, isBothSidebarMode, i18nTexts, stats }}>
+    let currentFilteredAnime = [...animeList];
+    const pageSize = 20;
+    let currentPage = 1;
+
+    function renderPagination(totalItems) {
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const container = document.getElementById('pagination-controls');
+      if (!container) return;
+      container.innerHTML = '';
+      if (totalPages <= 1) return;
+
+      const createBtn = (text, page, isActive = false) => {
+        const btn = document.createElement('button');
+        btn.className = `px-3 py-1 rounded-md text-sm transition ${
+          isActive 
+            ? 'bg-[var(--primary)] text-white' 
+            : 'bg-[var(--btn-regular-bg)] text-[var(--btn-content)] hover:bg-[var(--btn-hover-bg)]'
+        }`;
+        btn.textContent = text;
+        if (page !== undefined) {
+          btn.onclick = () => {
+            currentPage = page;
+            renderAnimeList();
+            renderPagination(currentFilteredAnime.length);
+            document.querySelector('#anime-list-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
+        }
+        return btn;
+      };
+
+      // 上一页
+      if (currentPage > 1) container.appendChild(createBtn('‹', currentPage - 1));
+      
+      // 页码（最多显示 5 个）
+      const start = Math.max(1, currentPage - 2);
+      const end = Math.min(totalPages, start + 4);
+      for (let i = start; i <= end; i++) {
+        container.appendChild(createBtn(i.toString(), i, i === currentPage));
+      }
+
+      // 下一页
+      if (currentPage < totalPages) container.appendChild(createBtn('›', currentPage + 1));
     }
 
-    .anime-grid-container {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .anime-grid-container *,
-    .anime-grid-container *::before,
-    .anime-grid-container *::after {
-      font-family: inherit;
+    function renderAnimeList() {
+      const container = document.getElementById('anime-list-container');
+      if (!container) return;
+
+      const startIndex = (currentPage - 1) * pageSize;
+      const paginatedItems = currentFilteredAnime.slice(startIndex, startIndex + pageSize);
+
+      container.innerHTML = paginatedItems.map(anime => {
+        const statusInfo = getStatusInfo(anime.status);
+        const progressPercent = anime.totalEpisodes > 0 ? (anime.progress / anime.totalEpisodes) * 100 : 0;
+
+        return `
+          <div class="group relative bg-[var(--card-bg)] border border-[var(--line-divider)] rounded-[var(--radius-large)] overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]" data-anime-status="${anime.status}">
+            <div class="relative aspect-[2/3] overflow-hidden">
+              <a href="${anime.link}" target="_blank" rel="noopener noreferrer" class="block w-full h-full">
+                <img src="${anime.cover}" alt="${anime.title.replace(/"/g, '&quot;')}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                      <svg class="w-6 h-6 text-gray-800 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              <div class="absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-medium ${statusInfo.class}">
+                <span class="mr-1">${statusInfo.icon}</span><span>${statusInfo.text}</span>
+              </div>
+              <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
+                <svg class="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <span>${anime.rating}</span>
+              </div>
+              ${anime.status === 'watching' ? `
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                  <div class="w-full bg-white/20 rounded-full h-1.5 mb-1">
+                    <div class="bg-gradient-to-r from-emerald-400 to-teal-400 h-1.5 rounded-full" style="width: ${progressPercent}%"></div>
+                  </div>
+                  <div class="text-white text-xs font-medium">${anime.progress}/${anime.totalEpisodes} (${Math.round(progressPercent)}%)</div>
+                </div>` : ''}
+            </div>
+            <div class="p-3">
+              <h3 class="text-sm font-bold text-black/90 dark:text-white/90 mb-1 line-clamp-2 leading-tight">${anime.title}</h3>
+              <p class="text-black/60 dark:text-white/60 text-xs mb-2 line-clamp-2">${anime.description}</p>
+              <div class="space-y-1 text-xs">
+                <div class="flex justify-between"><span class="text-black/50 dark:text-white/50">${i18nTexts.year}</span><span class="text-black/70 dark:text-white/70">${anime.year}</span></div>
+                <div class="flex justify-between"><span class="text-black/50 dark:text-white/50">${i18nTexts.studio}</span><span class="text-black/70 dark:text-white/70 truncate ml-2">${anime.studio}</span></div>
+                <div class="flex flex-wrap gap-1 mt-2">
+                  ${anime.genre.map(g => `<span class="px-1.5 py-0.5 bg-[var(--btn-regular-bg)] text-black/70 dark:text-white/70 rounded text-xs">${g}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    .anime-grid-container.single-sidebar {
-      @container (min-width: 900px) { grid-template-columns: repeat(5, 1fr); }
-      @container (min-width: 600px) and (max-width: 899px) { grid-template-columns: repeat(3, 1fr); }
-      @container (max-width: 599px) { grid-template-columns: repeat(2, 1fr); }
-    }
-    .anime-grid-container.both-sidebar {
-      @container (min-width: 950px) { grid-template-columns: repeat(5, 1fr); }
-      @container (min-width: 650px) and (max-width: 949px) { grid-template-columns: repeat(4, 1fr); }
-      @container (min-width: 480px) and (max-width: 649px) { grid-template-columns: repeat(3, 1fr); }
-      @container (max-width: 479px) { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    .filter-container { 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 0.5rem; 
-    }
-    .filter-tag {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--line-divider);
-      border-radius: var(--radius-large);
-      background: var(--btn-regular-bg);
-      color: var(--btn-content);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-      text-decoration: none;
-    }
-    .filter-tag:hover:not(.active) {
-      background: var(--btn-hover-bg);
-      border-color: var(--primary);
-      transform: translateY(-1px);
-    }
-    .filter-tag.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
+    function getStatusInfo(status) {
+      const map = {
+        watching: { text: i18nTexts.watching, class: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300", icon: "▶" },
+        completed: { text: i18nTexts.completed, class: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300", icon: "✓" },
+        planned: { text: i18nTexts.planned, class: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300", icon: "⏰" },
+        onhold: { text: i18nTexts.onhold, class: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300", icon: "⏸" },
+        dropped: { text: i18nTexts.dropped, class: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300", icon: "✗" }
+      };
+      return map[status] || { text: status, class: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300", icon: "?" };
     }
 
-    [data-anime-status] { 
-      transition: all 0.3s ease; 
+    function updateFilterCounts() {
+      const tags = document.querySelectorAll('.filter-tag');
+      tags.forEach(tag => {
+        const status = tag.getAttribute('data-status');
+        if (!status) return;
+        const count = stats[status as keyof typeof stats] ?? (status === 'all' ? stats.total : 0);
+        const originalText = tag.textContent?.split('(')[0]?.trim() || '';
+        tag.textContent = `${originalText} (${count})`;
+        tag.setAttribute('data-count', String(count));
+      });
     }
-  </style>
+
+    function initFilterButtons() {
+      const tags = document.querySelectorAll('.filter-tag');
+      tags.forEach(tag => {
+        tag.addEventListener('click', () => {
+          tags.forEach(t => t.classList.remove('active'));
+          tag.classList.add('active');
+
+          const status = tag.getAttribute('data-status');
+          currentFilteredAnime = status === 'all' ? [...animeList] : animeList.filter(a => a.status === status);
+          currentPage = 1;
+          renderAnimeList();
+          renderPagination(currentFilteredAnime.length);
+          updateFilterCounts();
+        });
+      });
+      updateFilterCounts();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAnimeList();
+      renderPagination(animeList.length);
+      initFilterButtons();
+    });
+  </script>
+
+ <style>
+  .card-base { 
+    container-type: inline-size; 
+  }
+
+  .anime-grid-container {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .anime-grid-container *,
+  .anime-grid-container *::before,
+  .anime-grid-container *::after {
+    font-family: inherit;
+  }
+
+  .anime-grid-container.single-sidebar {
+    @container (min-width: 900px) { grid-template-columns: repeat(5, 1fr); }
+    @container (min-width: 600px) and (max-width: 899px) { grid-template-columns: repeat(3, 1fr); }
+    @container (max-width: 599px) { grid-template-columns: repeat(2, 1fr); }
+  }
+  .anime-grid-container.both-sidebar {
+    @container (min-width: 950px) { grid-template-columns: repeat(5, 1fr); }
+    @container (min-width: 650px) and (max-width: 949px) { grid-template-columns: repeat(4, 1fr); }
+    @container (min-width: 480px) and (max-width: 649px) { grid-template-columns: repeat(3, 1fr); }
+    @container (max-width: 479px) { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .filter-container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 0.5rem; 
+  }
+  .filter-tag {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--line-divider);
+    border-radius: var(--radius-large);
+    background: var(--btn-regular-bg);
+    color: var(--btn-content);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .filter-tag:hover:not(.active) {
+    background: var(--btn-hover-bg);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+  }
+  .filter-tag.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  [data-anime-status] { 
+    transition: all 0.3s ease; 
+  }
+</style>
 </MainGridLayout>
