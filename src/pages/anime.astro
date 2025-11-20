@@ -253,6 +253,30 @@ const stats = {
 		).toFixed(1);
 	})(),
 };
+
+// 分页按钮生成函数 - 修复Fragment错误
+const getVisiblePageNumbers = (current: number, total: number, maxVisible = 5): number[] => {
+  if (total <= maxVisible) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  const half = Math.floor(maxVisible / 2);
+  let start = current - half;
+  let end = current + half;
+
+  if (start < 1) {
+    start = 1;
+    end = maxVisible;
+  }
+  if (end > total) {
+    end = total;
+    start = total - maxVisible + 1;
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+};
+
+const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
 ---
 
 <MainGridLayout title={i18n(I18nKey.anime)} description={i18n(I18nKey.animeSubtitle)}>
@@ -433,19 +457,16 @@ const stats = {
       
       <!-- 分页导航 -->
       {totalPages > 1 && (
-        <div class="flex justify-center gap-2 mt-6">
+        <div class="flex justify-center gap-2 mt-6 flex-wrap">
           {currentPage > 1 && (
             <a href={`?page=${currentPage - 1}&status=${selectedStatus}&limit=${itemsPerPage}`} class="px-3 py-2 rounded bg-[var(--btn-regular-bg)] text-[var(--btn-content)] hover:bg-[var(--btn-hover-bg)] transition-colors">
               上一页
             </a>
           )}
           
-          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-            const startPage = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
-            const pageNum = startPage + i;
-            return pageNum <= totalPages ? pageNum : null;
-          }).filter(p => p !== null).map(p => (
+          {visiblePages.map(p => (
             <a 
+              key={p}
               href={`?page=${p}&status=${selectedStatus}&limit=${itemsPerPage}`} 
               class={`px-3 py-2 rounded transition-colors ${
                 p === currentPage 
