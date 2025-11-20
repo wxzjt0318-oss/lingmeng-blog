@@ -623,23 +623,34 @@ const paginatedAnimeList = animeList.slice((currentPage - 1) * itemsPerPage, cur
     }
 
     /* 统计栏样式 */
-    .stats-bar {
-      margin-bottom: 1rem;
-      border-radius: var(--radius-large);
-      padding: 0.75rem;
-      border: 1px solid var(--line-divider);
-      background: rgba(255, 255, 255, 0.8) dark:(rgba(17, 24, 39, 0.8));
-      backdrop-filter: blur(8px);
-    }
+.stats-bar {
+  margin-bottom: 1rem;
+  border-radius: var(--radius-large);
+  padding: 0.75rem;
+  border: 1px solid var(--line-divider);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  /* 确保在不支持 backdrop-filter 的浏览器中有基础背景 */
+  -webkit-backdrop-filter: blur(8px);
+}
 
-    /* 分页样式 */
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 1.5rem;
-    }
+/* 暗色模式下的统计栏样式 */
+@media (prefers-color-scheme: dark) {
+  .stats-bar {
+    background: rgba(17, 24, 39, 0.8);
+    /* 可选：如果 --line-divider 在暗色下也需要调整，可在这里覆盖 */
+    /* border-color: var(--line-divider-dark); */
+  }
+}
+
+/* 分页样式 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
 
     .page-btn {
       padding: 0.5rem 0.75rem;
