@@ -24,7 +24,7 @@ const ANIME_MODE = siteConfig.anime?.mode || "bangumi";
 // 获取当前页码和每页数量
 const url = new URL(Astro.request.url);
 const currentPage = parseInt(url.searchParams.get('page') || '1');
-const itemsPerPage = 12; // 固定每页24项，移除选择器
+const itemsPerPage = 24; // 固定每页24项，移除选择器
 const selectedStatus = url.searchParams.get('status') || 'all';
 
 // 获取单个条目相关人员信息
@@ -250,7 +250,7 @@ const stats = {
 			ratedAnime.length
 		).toFixed(1);
 	})(),
-	lastUpdated: new Date().toLocaleDateString('zh-CN'), // 最后更新时间
+	lastUpdated: new Date().toLocaleString('zh-CN'), // 包含日期和时间
 };
 
 // 计算各状态的数量
@@ -312,7 +312,7 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
             <div class="text-xs text-black/60 dark:text-white/60">平均评分</div>
           </div>
           <div class="bg-[var(--card-bg)] p-3 rounded-lg text-center border border-[var(--line-divider)]">
-            <div class="text-xl font-bold text-purple-600 dark:text-purple-400">{stats.lastUpdated}</div>
+            <div class="text-sm font-bold text-purple-600 dark:text-purple-400">{stats.lastUpdated}</div>
             <div class="text-xs text-black/60 dark:text-white/60">最后更新</div>
           </div>
         </div>
@@ -320,7 +320,7 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
         <!-- 过滤按钮 - 参考Firefly设计 -->
         <div class="mb-6">
           <div class="filter-container flex flex-wrap gap-2">
-            <button class="filter-tag active" data-status="all" onclick="updateFilter('all', event)">
+            <button class="filter-tag" data-status="all" onclick="updateFilter('all', event)">
               全部 <span class="ml-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full px-2 py-0.5 text-xs">{animeList.length}</span>
             </button>
             <button class="filter-tag" data-status="watching" onclick="updateFilter('watching', event)">
@@ -467,7 +467,7 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
       {totalPages > 1 && (
         <div class="flex justify-center gap-2 mt-6 flex-wrap">
           {currentPage > 1 && (
-            <a href={`?page=${currentPage - 1}&status=${selectedStatus}&limit=${itemsPerPage}`} class="px-3 py-2 rounded bg-[var(--btn-regular-bg)] text-[var(--btn-content)] hover:bg-[var(--btn-hover-bg)] transition-colors">
+            <a href={`?page=${currentPage - 1}&status=${selectedStatus}`} class="px-3 py-2 rounded bg-[var(--btn-regular-bg)] text-[var(--btn-content)] hover:bg-[var(--btn-hover-bg)] transition-colors">
               上一页
             </a>
           )}
@@ -475,7 +475,7 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
           {visiblePages.map(p => (
             <a 
               key={p}
-              href={`?page=${p}&status=${selectedStatus}&limit=${itemsPerPage}`} 
+              href={`?page=${p}&status=${selectedStatus}`} 
               class={`px-3 py-2 rounded transition-colors ${
                 p === currentPage 
                   ? 'bg-[var(--primary)] text-white' 
@@ -487,7 +487,7 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
           ))}
           
           {currentPage < totalPages && (
-            <a href={`?page=${currentPage + 1}&status=${selectedStatus}&limit=${itemsPerPage}`} class="px-3 py-2 rounded bg-[var(--btn-regular-bg)] text-[var(--btn-content)] hover:bg-[var(--btn-hover-bg)] transition-colors">
+            <a href={`?page=${currentPage + 1}&status=${selectedStatus}`} class="px-3 py-2 rounded bg-[var(--btn-regular-bg)] text-[var(--btn-content)] hover:bg-[var(--btn-hover-bg)] transition-colors">
               下一页
             </a>
           )}
