@@ -279,16 +279,16 @@ const sortedAnimeList = [...animeList].sort((a, b) => {
         <!-- 统计信息卡片 -->
         <div class="stats-container grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div class="stat-card bg-[var(--card-bg)] border border-[var(--line-divider)] rounded-[var(--radius-large)] p-4 flex flex-col items-center justify-center">
+            <div class="text-xs text-black/60 dark:text-white/60 mb-1">{i18n(I18nKey.animeTotal)}</div>
             <div class="text-2xl font-bold text-[var(--primary)]">{stats.total}</div>
-            <div class="text-sm text-black/60 dark:text-white/60">{i18n(I18nKey.animeTotal)}</div>
           </div>
           <div class="stat-card bg-[var(--card-bg)] border border-[var(--line-divider)] rounded-[var(--radius-large)] p-4 flex flex-col items-center justify-center">
+            <div class="text-xs text-black/60 dark:text-white/60 mb-1">{i18n(I18nKey.animeAvgRating)}</div>
             <div class="text-2xl font-bold text-blue-500">{stats.avgRating}</div>
-            <div class="text-sm text-black/60 dark:text-white/60">{i18n(I18nKey.animeAvgRating)}</div>
           </div>
           <div class="stat-card bg-[var(--card-bg)] border border-[var(--line-divider)] rounded-[var(--radius-large)] p-4 flex flex-col items-center justify-center">
+            <div class="text-xs text-black/60 dark:text-white/60 mb-1">{i18n(I18nKey.animeLastUpdated)}</div>
             <div class="text-sm font-medium text-black/80 dark:text-white/80">{lastUpdated}</div>
-            <div class="text-sm text-black/60 dark:text-white/60">{i18n(I18nKey.animeLastUpdated)}</div>
           </div>
         </div>
         
@@ -775,7 +775,7 @@ const sortedAnimeList = [...animeList].sort((a, b) => {
     .pagination-container {
       margin-top: 2rem;
       display: flex;
-      justify-content: center;
+      justify-center: center;
       align-items: center;
       gap: 0.5rem;
     }
