@@ -18,6 +18,7 @@ const ANIME_MODE = siteConfig.anime?.mode || "bangumi";
 
 // 最后更新时间（仅 Bangumi 模式有效）
 let lastUpdateTime: string | null = null;
+let bangumiError: string | null = null;
 
 async function fetchSubjectPersons(subjectId: number) {
 	try {
@@ -41,23 +42,36 @@ async function fetchBangumiCollection(userId: string, subjectType: number, type:
 			const response = await fetch(
 				`${BANGUMI_API_BASE}/v0/users/${userId}/collections?subject_type=${subjectType}&type=${type}&limit=${limit}&offset=${offset}`,
 			);
-			if (!response.ok) throw new Error(`Bangumi API error: ${response.status}`);
+
+			if (response.status === 404) {
+				return { error: "USER_NOT_FOUND" };
+			}
+			if (response.status === 429) {
+				return { error: "RATE_LIMITED" };
+			}
+			if (!response.ok) {
+				throw new Error(`Bangumi API error: ${response.status}`);
+			}
+
 			const data = await response.json();
 
-			if (data.data && data.data.length > 0) {
+			if (data.data && Array.isArray(data.data)) {
 				allData = [...allData, ...data.data];
+			} else {
+				break;
 			}
+
 			if (!data.data || data.data.length < limit) {
 				hasMore = false;
 			} else {
 				offset += limit;
+				await new Promise((resolve) => setTimeout(resolve, 150));
 			}
-			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 		return { data: allData };
 	} catch (error) {
 		console.error("Error fetching Bangumi data:", error);
-		return null;
+		return { error: "NETWORK_ERROR" };
 	}
 }
 
@@ -115,24 +129,33 @@ if (ANIME_MODE === "local") {
 	const onHoldData = await fetchBangumiCollection(BANGUMI_USER_ID, 2, 4);
 	const droppedData = await fetchBangumiCollection(BANGUMI_USER_ID, 2, 5);
 
-	const watchingList = watchingData ? await processBangumiData(watchingData, "watching") : [];
-	const plannedList = plannedData ? await processBangumiData(plannedData, "planned") : [];
-	const completedList = completedData ? await processBangumiData(completedData, "completed") : [];
-	const onHoldList = onHoldData ? await processBangumiData(onHoldData, "onhold") : [];
-	const droppedList = droppedData ? await processBangumiData(droppedData, "dropped") : [];
+	const allResponses = [watchingData, plannedData, completedData, onHoldData, droppedData];
+	for (const res of allResponses) {
+		if (res?.error) {
+			bangumiError = res.error;
+			break;
+		}
+	}
 
-	animeList = [...watchingList, ...plannedList, ...completedList, ...onHoldList, ...droppedList];
+	if (!bangumiError) {
+		const watchingList = watchingData?.data ? await processBangumiData({ data: watchingData.data }, "watching") : [];
+		const plannedList = plannedData?.data ? await processBangumiData({ data: plannedData.data }, "planned") : [];
+		const completedList = completedData?.data ? await processBangumiData({ data: completedData.data }, "completed") : [];
+		const onHoldList = onHoldData?.data ? await processBangumiData({ data: onHoldData.data }, "onhold") : [];
+		const droppedList = droppedData?.data ? await processBangumiData({ data: droppedData.data }, "dropped") : [];
 
-	// 记录最后更新时间（仅 Bangumi 模式）
-	if (animeList.length > 0) {
-		lastUpdateTime = new Date().toLocaleString('zh-CN', {
-			year: 'numeric',
-			month: '2-digit',
-			day: '2-digit',
-			hour: '2-digit',
-			minute: '2-digit',
-			hour12: false
-		});
+		animeList = [...watchingList, ...plannedList, ...completedList, ...onHoldList, ...droppedList];
+
+		if (animeList.length > 0) {
+			lastUpdateTime = new Date().toLocaleString('zh-CN', {
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+				hour: '2-digit',
+				minute: '2-digit',
+				hour12: false
+			});
+		}
 	}
 }
 
@@ -164,6 +187,20 @@ const stats = {
 		const rated = animeList.filter(a => a.rating > 0);
 		return rated.length ? (rated.reduce((sum, a) => sum + a.rating, 0) / rated.length).toFixed(1) : "0.0";
 	})(),
+};
+
+const i18nTexts = {
+	year: i18n(I18nKey.animeYear),
+	studio: i18n(I18nKey.animeStudio),
+	watching: i18n(I18nKey.animeStatusWatching),
+	completed: i18n(I18nKey.animeStatusCompleted),
+	planned: i18n(I18nKey.animeStatusPlanned),
+	onhold: i18n(I18nKey.animeStatusOnHold),
+	dropped: i18n(I18nKey.animeStatusDropped),
+	userNotFound: i18n(I18nKey.animeErrorUserNotFound),
+	rateLimited: i18n(I18nKey.animeErrorRateLimited),
+	networkError: i18n(I18nKey.animeErrorNetwork),
+	userIdInvalid: i18n(I18nKey.animeErrorUserIdInvalid),
 };
 ---
 
@@ -220,13 +257,27 @@ const stats = {
           <div class="text-center py-12">
             <div class="text-5xl mb-4">😢</div>
             <h3 class="text-xl font-medium text-black/80 dark:text-white/80 mb-2">{i18n(I18nKey.animeEmpty)}</h3>
-            <p class="text-black/60 dark:text-white/60">请在 src/config.ts 文件中设置你的 Bangumi 用户ID</p>
+            <p class="text-black/60 dark:text-white/60">{i18nTexts.userIdInvalid}</p>
+          </div>
+        ) : bangumiError ? (
+          <div class="text-center py-12">
+            <div class="text-5xl mb-4">⚠️</div>
+            <h3 class="text-xl font-medium text-black/80 dark:text-white/80 mb-2">
+              {bangumiError === 'USER_NOT_FOUND'
+                ? i18nTexts.userNotFound
+                : bangumiError === 'RATE_LIMITED'
+                  ? i18nTexts.rateLimited
+                  : i18nTexts.networkError}
+            </h3>
+            <p class="text-black/60 dark:text-white/60 mt-2">
+              {bangumiError === 'USER_NOT_FOUND'
+                ? `用户 ID "${BANGUMI_USER_ID}" 无效`
+                : '请稍后刷新页面或联系站点管理员'}
+            </p>
           </div>
         ) : animeList.length > 0 ? (
           <>
             <div id="anime-list-container" class={`anime-grid-container grid gap-4 md:gap-6 list-mode ${isBothSidebarMode ? "both-sidebar" : "single-sidebar"}`}></div>
-
-            <!-- 分页控件 -->
             <div id="pagination-controls" class="mt-6 flex justify-center gap-2 flex-wrap"></div>
           </>
         ) : (
@@ -242,7 +293,7 @@ const stats = {
     </div>
   </div>
 
-  <script is:inline define:vars={{ animeList, isBothSidebarMode }}>
+  <script is:inline define:vars={{ animeList, isBothSidebarMode, i18nTexts }}>
     // 全局状态
     let currentFilteredAnime = [...animeList];
     const pageSize = 20;
@@ -315,8 +366,8 @@ const stats = {
               <h3 class="text-sm font-bold text-black/90 dark:text-white/90 mb-1 line-clamp-2 leading-tight">${anime.title}</h3>
               <p class="text-black/60 dark:text-white/60 text-xs mb-2 line-clamp-2">${anime.description}</p>
               <div class="space-y-1 text-xs">
-                <div class="flex justify-between"><span class="text-black/50 dark:text-white/50">${/* i18n(I18nKey.animeYear) */ "年份"}</span><span class="text-black/70 dark:text-white/70">${anime.year}</span></div>
-                <div class="flex justify-between"><span class="text-black/50 dark:text-white/50">${/* i18n(I18nKey.animeStudio) */ "制作"}</span><span class="text-black/70 dark:text-white/70 truncate ml-2">${anime.studio}</span></div>
+                <div class="flex justify-between"><span class="text-black/50 dark:text-white/50">${i18nTexts.year}</span><span class="text-black/70 dark:text-white/70">${anime.year}</span></div>
+                <div class="flex justify-between"><span class="text-black/50 dark:text-white/50">${i18nTexts.studio}</span><span class="text-black/70 dark:text-white/70 truncate ml-2">${anime.studio}</span></div>
                 <div class="flex flex-wrap gap-1 mt-2">
                   ${anime.genre.map(g => `<span class="px-1.5 py-0.5 bg-[var(--btn-regular-bg)] text-black/70 dark:text-white/70 rounded text-xs">${g}</span>`).join('')}
                 </div>
@@ -330,11 +381,11 @@ const stats = {
     // 获取状态信息（与 Astro 同步）
     function getStatusInfo(status) {
       const map = {
-        watching: { text: "观看中", class: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300", icon: "▶" },
-        completed: { text: "已看完", class: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300", icon: "✓" },
-        planned: { text: "想看", class: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300", icon: "⏰" },
-        onhold: { text: "搁置", class: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300", icon: "⏸" },
-        dropped: { text: "抛弃", class: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300", icon: "✗" }
+        watching: { text: i18nTexts.watching, class: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300", icon: "▶" },
+        completed: { text: i18nTexts.completed, class: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300", icon: "✓" },
+        planned: { text: i18nTexts.planned, class: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300", icon: "⏰" },
+        onhold: { text: i18nTexts.onhold, class: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300", icon: "⏸" },
+        dropped: { text: i18nTexts.dropped, class: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300", icon: "✗" }
       };
       return map[status] || { text: status, class: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300", icon: "?" };
     }
