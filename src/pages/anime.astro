@@ -24,7 +24,7 @@ const ANIME_MODE = siteConfig.anime?.mode || "bangumi";
 // 获取当前页码和每页数量
 const url = new URL(Astro.request.url);
 const currentPage = parseInt(url.searchParams.get('page') || '1');
-const itemsPerPage = parseInt(url.searchParams.get('limit') || '24');
+const itemsPerPage = 12; // 固定每页24项，移除选择器
 const selectedStatus = url.searchParams.get('status') || 'all';
 
 // 获取单个条目相关人员信息
@@ -242,8 +242,6 @@ function getStatusInfo(status: string) {
 // 计算统计数据
 const stats = {
 	total: animeList.length,
-	watching: animeList.filter((anime) => anime.status === "watching").length,
-	completed: animeList.filter((anime) => anime.status === "completed").length,
 	avgRating: (() => {
 		const ratedAnime = animeList.filter((anime) => anime.rating > 0);
 		if (ratedAnime.length === 0) return "0.0";
@@ -252,9 +250,19 @@ const stats = {
 			ratedAnime.length
 		).toFixed(1);
 	})(),
+	lastUpdated: new Date().toLocaleDateString('zh-CN'), // 最后更新时间
 };
 
-// 分页按钮生成函数 - 修复Fragment错误
+// 计算各状态的数量
+const statusCounts = {
+	watching: animeList.filter((anime) => anime.status === "watching").length,
+	planned: animeList.filter((anime) => anime.status === "planned").length,
+	completed: animeList.filter((anime) => anime.status === "completed").length,
+	onhold: animeList.filter((anime) => anime.status === "onhold").length,
+	dropped: animeList.filter((anime) => anime.status === "dropped").length,
+};
+
+// 分页按钮生成函数
 const getVisiblePageNumbers = (current: number, total: number, maxVisible = 5): number[] => {
   if (total <= maxVisible) {
     return Array.from({ length: total }, (_, i) => i + 1);
@@ -294,36 +302,44 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
         </div>
         
         <!-- 统计卡片 -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           <div class="bg-[var(--card-bg)] p-3 rounded-lg text-center border border-[var(--line-divider)]">
             <div class="text-xl font-bold text-black/90 dark:text-white/90">{stats.total}</div>
-            <div class="text-xs text-black/60 dark:text-white/60">{i18n(I18nKey.animeStatsTotal)}</div>
-          </div>
-          <div class="bg-[var(--card-bg)] p-3 rounded-lg text-center border border-[var(--line-divider)]">
-            <div class="text-xl font-bold text-green-600 dark:text-green-400">{stats.watching}</div>
-            <div class="text-xs text-black/60 dark:text-white/60">{i18n(I18nKey.animeStatusWatching)}</div>
-          </div>
-          <div class="bg-[var(--card-bg)] p-3 rounded-lg text-center border border-[var(--line-divider)]">
-            <div class="text-xl font-bold text-blue-600 dark:text-blue-400">{stats.completed}</div>
-            <div class="text-xs text-black/60 dark:text-white/60">{i18n(I18nKey.animeStatusCompleted)}</div>
+            <div class="text-xs text-black/60 dark:text-white/60">总数</div>
           </div>
           <div class="bg-[var(--card-bg)] p-3 rounded-lg text-center border border-[var(--line-divider)]">
             <div class="text-xl font-bold text-amber-600 dark:text-amber-400">{stats.avgRating}</div>
-            <div class="text-xs text-black/60 dark:text-white/60">{i18n(I18nKey.animeStatsAvgRating)}</div>
+            <div class="text-xs text-black/60 dark:text-white/60">平均评分</div>
+          </div>
+          <div class="bg-[var(--card-bg)] p-3 rounded-lg text-center border border-[var(--line-divider)]">
+            <div class="text-xl font-bold text-purple-600 dark:text-purple-400">{stats.lastUpdated}</div>
+            <div class="text-xs text-black/60 dark:text-white/60">最后更新</div>
           </div>
         </div>
         
         <!-- 过滤按钮 - 参考Firefly设计 -->
         <div class="mb-6">
           <div class="filter-container flex flex-wrap gap-2">
-            <button class="filter-tag active" data-status="all" onclick="updateFilter('all', event)">全部</button>
-            <button class="filter-tag" data-status="watching" onclick="updateFilter('watching', event)">{i18n(I18nKey.animeStatusWatching)}</button>
-            <button class="filter-tag" data-status="planned" onclick="updateFilter('planned', event)">{i18n(I18nKey.animeStatusPlanned)}</button>
-            <button class="filter-tag" data-status="completed" onclick="updateFilter('completed', event)">{i18n(I18nKey.animeStatusCompleted)}</button>
+            <button class="filter-tag active" data-status="all" onclick="updateFilter('all', event)">
+              全部 <span class="ml-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full px-2 py-0.5 text-xs">{animeList.length}</span>
+            </button>
+            <button class="filter-tag" data-status="watching" onclick="updateFilter('watching', event)">
+              {i18n(I18nKey.animeStatusWatching)} <span class="ml-1 bg-green-200 dark:bg-green-700 text-green-800 dark:text-green-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.watching}</span>
+            </button>
+            <button class="filter-tag" data-status="planned" onclick="updateFilter('planned', event)">
+              {i18n(I18nKey.animeStatusPlanned)} <span class="ml-1 bg-amber-200 dark:bg-amber-700 text-amber-800 dark:text-amber-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.planned}</span>
+            </button>
+            <button class="filter-tag" data-status="completed" onclick="updateFilter('completed', event)">
+              {i18n(I18nKey.animeStatusCompleted)} <span class="ml-1 bg-blue-200 dark:bg-blue-700 text-blue-800 dark:text-blue-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.completed}</span>
+            </button>
             {ANIME_MODE === 'bangumi' && (
               <>
-                <button class="filter-tag" data-status="onhold" onclick="updateFilter('onhold', event)">{i18n(I18nKey.animeStatusOnHold)}</button>
-                <button class="filter-tag" data-status="dropped" onclick="updateFilter('dropped', event)">{i18n(I18nKey.animeStatusDropped)}</button>
+                <button class="filter-tag" data-status="onhold" onclick="updateFilter('onhold', event)">
+                  {i18n(I18nKey.animeStatusOnHold)} <span class="ml-1 bg-purple-200 dark:bg-purple-700 text-purple-800 dark:text-purple-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.onhold}</span>
+                </button>
+                <button class="filter-tag" data-status="dropped" onclick="updateFilter('dropped', event)">
+                  {i18n(I18nKey.animeStatusDropped)} <span class="ml-1 bg-red-200 dark:bg-red-700 text-red-800 dark:text-red-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.dropped}</span>
+                </button>
               </>
             )}
           </div>
@@ -333,14 +349,6 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
         <div class="flex justify-between items-center mb-4">
           <div class="text-sm text-black/60 dark:text-white/60">
             显示第 {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredAnimeList.length)} 条，共 {filteredAnimeList.length} 条
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-sm text-black/60 dark:text-white/60">每页:</span>
-            <select onchange="updateLimit(this.value)" class="bg-[var(--card-bg)] border border-[var(--line-divider)] rounded px-2 py-1 text-sm">
-              <option value="12" {itemsPerPage === 12 ? 'selected' : ''}>12</option>
-              <option value="24" {itemsPerPage === 24 ? 'selected' : ''}>24</option>
-              <option value="48" {itemsPerPage === 48 ? 'selected' : ''}>48</option>
-            </select>
           </div>
         </div>
       </div>
@@ -657,13 +665,7 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
     window.location = url.toString();
   }
   
-  // 更新每页数量
-  function updateLimit(limit) {
-    const url = new URL(window.location);
-    url.searchParams.set('limit', limit);
-    url.searchParams.set('page', '1'); // 重置到第一页
-    window.location = url.toString();
-  }
+  // 更新每页数量 - 现在固定为24，无需函数
 </script>
 
 <!-- 过滤按钮样式 -->
@@ -735,6 +737,8 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
       cursor: pointer;
       transition: all 0.2s ease;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
     }
     
     .filter-tag:hover:not(.active) {
