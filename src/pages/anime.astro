@@ -16,6 +16,9 @@ const BANGUMI_USER_ID = siteConfig.bangumi?.userId || "your-user-id";
 const BANGUMI_API_BASE = "https://api.bgm.tv";
 const ANIME_MODE = siteConfig.anime?.mode || "bangumi";
 
+// 从环境变量获取构建时间（用于 lastUpdateTime）
+const BUILD_TIME = import.meta.env.BUILD_TIME; // e.g. "2025-11-20 09:30:00"
+
 // 最后更新时间（仅 Bangumi 模式有效）
 let lastUpdateTime: string | null = null;
 let bangumiError: string | null = null;
@@ -147,7 +150,9 @@ if (ANIME_MODE === "local") {
 		animeList = [...watchingList, ...plannedList, ...completedList, ...onHoldList, ...droppedList];
 
 		if (animeList.length > 0) {
-			lastUpdateTime = new Date().toLocaleString('zh-CN', {
+			// 使用 BUILD_TIME（部署时间）作为最后更新时间；若无，则用当前时间（开发环境）
+			const updateTime = BUILD_TIME ? new Date(BUILD_TIME) : new Date();
+			lastUpdateTime = updateTime.toLocaleString('zh-CN', {
 				year: 'numeric',
 				month: '2-digit',
 				day: '2-digit',
