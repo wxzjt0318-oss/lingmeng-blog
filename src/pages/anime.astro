@@ -328,26 +328,26 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
         <!-- 过滤按钮 - 参考Firefly设计 -->
         <div class="mb-6">
           <div class="filter-container flex flex-wrap gap-2">
-            <button class={`filter-tag ${selectedStatus === 'all' ? 'active' : ''}`} data-status="all" onclick="updateFilter('all', event)">
+            <a href="?status=all" class={`filter-tag ${selectedStatus === 'all' ? 'active' : ''}`}>
               全部 <span class="ml-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full px-2 py-0.5 text-xs">{animeList.length}</span>
-            </button>
-            <button class={`filter-tag ${selectedStatus === 'watching' ? 'active' : ''}`} data-status="watching" onclick="updateFilter('watching', event)">
+            </a>
+            <a href="?status=watching" class={`filter-tag ${selectedStatus === 'watching' ? 'active' : ''}`}>
               {i18n(I18nKey.animeStatusWatching)} <span class="ml-1 bg-green-200 dark:bg-green-700 text-green-800 dark:text-green-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.watching}</span>
-            </button>
-            <button class={`filter-tag ${selectedStatus === 'planned' ? 'active' : ''}`} data-status="planned" onclick="updateFilter('planned', event)">
+            </a>
+            <a href="?status=planned" class={`filter-tag ${selectedStatus === 'planned' ? 'active' : ''}`}>
               {i18n(I18nKey.animeStatusPlanned)} <span class="ml-1 bg-amber-200 dark:bg-amber-700 text-amber-800 dark:text-amber-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.planned}</span>
-            </button>
-            <button class={`filter-tag ${selectedStatus === 'completed' ? 'active' : ''}`} data-status="completed" onclick="updateFilter('completed', event)">
+            </a>
+            <a href="?status=completed" class={`filter-tag ${selectedStatus === 'completed' ? 'active' : ''}`}>
               {i18n(I18nKey.animeStatusCompleted)} <span class="ml-1 bg-blue-200 dark:bg-blue-700 text-blue-800 dark:text-blue-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.completed}</span>
-            </button>
+            </a>
             {ANIME_MODE === 'bangumi' && (
               <>
-                <button class={`filter-tag ${selectedStatus === 'onhold' ? 'active' : ''}`} data-status="onhold" onclick="updateFilter('onhold', event)">
+                <a href="?status=onhold" class={`filter-tag ${selectedStatus === 'onhold' ? 'active' : ''}`}>
                   {i18n(I18nKey.animeStatusOnHold)} <span class="ml-1 bg-purple-200 dark:bg-purple-700 text-purple-800 dark:text-purple-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.onhold}</span>
-                </button>
-                <button class={`filter-tag ${selectedStatus === 'dropped' ? 'active' : ''}`} data-status="dropped" onclick="updateFilter('dropped', event)">
+                </a>
+                <a href="?status=dropped" class={`filter-tag ${selectedStatus === 'dropped' ? 'active' : ''}`}>
                   {i18n(I18nKey.animeStatusDropped)} <span class="ml-1 bg-red-200 dark:bg-red-700 text-red-800 dark:text-red-200 rounded-full px-2 py-0.5 text-xs">{statusCounts.dropped}</span>
-                </button>
+                </a>
               </>
             )}
           </div>
@@ -504,32 +504,6 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
     </div>
   </div>
 
-  <script is:inline>
-    // 更新过滤状态
-    function updateFilter(status, event) {
-      event.preventDefault();
-      const url = new URL(window.location);
-      url.searchParams.set('status', status);
-      url.searchParams.set('page', '1'); // 重置到第一页
-      window.location = url.toString();
-    }
-    
-    // 初始化过滤按钮
-    document.addEventListener('DOMContentLoaded', function() {
-      const currentStatus = new URL(window.location).searchParams.get('status') || 'all';
-      const filterTags = document.querySelectorAll('.filter-tag');
-      
-      // 设置当前状态的active类
-      filterTags.forEach(tag => {
-        if (tag.getAttribute('data-status') === currentStatus) {
-          tag.classList.add('active');
-        } else {
-          tag.classList.remove('active');
-        }
-      });
-    });
-  </script>
-
   <style>
     /* 容器查询支持 */
     .card-base {
@@ -600,6 +574,7 @@ const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
       white-space: nowrap;
       display: flex;
       align-items: center;
+      text-decoration: none;
     }
     
     .filter-tag:hover:not(.active) {
