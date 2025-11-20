@@ -461,47 +461,69 @@ const i18nTexts = {
     });
   </script>
 
-  <style>
-    .card-base { container-type: inline-size; }
-    .anime-grid-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .anime-grid-container.single-sidebar {
-      @container (min-width: 900px) { grid-template-columns: repeat(5, 1fr); }
-      @container (min-width: 600px) and (max-width: 899px) { grid-template-columns: repeat(3, 1fr); }
-      @container (max-width: 599px) { grid-template-columns: repeat(2, 1fr); }
-    }
-    .anime-grid-container.both-sidebar {
-      @container (min-width: 950px) { grid-template-columns: repeat(5, 1fr); }
-      @container (min-width: 650px) and (max-width: 949px) { grid-template-columns: repeat(4, 1fr); }
-      @container (min-width: 480px) and (max-width: 649px) { grid-template-columns: repeat(3, 1fr); }
-      @container (max-width: 479px) { grid-template-columns: repeat(2, 1fr); }
-    }
-    .filter-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .filter-tag {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--line-divider);
-      border-radius: var(--radius-large);
-      background: var(--btn-regular-bg);
-      color: var(--btn-content);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-    .filter-tag:hover:not(.active) {
-      background: var(--btn-hover-bg);
-      border-color: var(--primary);
-      transform: translateY(-1px);
-    }
-    .filter-tag.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-    [data-anime-status] { transition: all 0.3s ease; }
-  </style>
+ <style>
+  .card-base { 
+    container-type: inline-size; 
+  }
+
+  /* === 统一番剧卡片字体 === */
+  .anime-grid-container {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .anime-grid-container *,
+  .anime-grid-container *::before,
+  .anime-grid-container *::after {
+    font-family: inherit;
+  }
+
+  /* 响应式网格 */
+  .anime-grid-container.single-sidebar {
+    @container (min-width: 900px) { grid-template-columns: repeat(5, 1fr); }
+    @container (min-width: 600px) and (max-width: 899px) { grid-template-columns: repeat(3, 1fr); }
+    @container (max-width: 599px) { grid-template-columns: repeat(2, 1fr); }
+  }
+  .anime-grid-container.both-sidebar {
+    @container (min-width: 950px) { grid-template-columns: repeat(5, 1fr); }
+    @container (min-width: 650px) and (max-width: 949px) { grid-template-columns: repeat(4, 1fr); }
+    @container (min-width: 480px) and (max-width: 649px) { grid-template-columns: repeat(3, 1fr); }
+    @container (max-width: 479px) { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* 过滤按钮样式 */
+  .filter-container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 0.5rem; 
+  }
+  .filter-tag {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--line-divider);
+    border-radius: var(--radius-large);
+    background: var(--btn-regular-bg);
+    color: var(--btn-content);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .filter-tag:hover:not(.active) {
+    background: var(--btn-hover-bg);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+  }
+  .filter-tag.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* 动画过渡 */
+  [data-anime-status] { 
+    transition: all 0.3s ease; 
+  }
+</style>
 </MainGridLayout>
