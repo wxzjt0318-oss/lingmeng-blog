@@ -10,7 +10,7 @@ draft: false
 pubDate: 2025-11-20
 published: 2025-11-20
 pinned: true
-image: https://ibb.co/0VnHTfMM
+image: https://i.ibb.co/0VnHTfMM/20211007142640-6bd52.jpg
 ---
 
 在众多异世界番剧中，**《精灵幻想记》** 是我始终如一的守候。
